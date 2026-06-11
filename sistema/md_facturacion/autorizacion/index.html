@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Facturación Electrónica</title>
+<script language="javascript" src="librerias/jquery.js"></script>
+<script>
+function inicio()
+{
+	$.ajax({
+    	url: 'procesos/firmar.php',
+    	type: 'get',
+		data: {'archivo': $('#arch').val() },
+		dataType:"json",
+		beforeSend: function(){
+			$('#firma').css('color','#000');
+			$('#firma').html('Procesando..');
+		},
+    	success: function(response) {
+			if(response[2])
+			{
+				$('#firma').css('color','#0F0');
+				$('#firma').html('Ok');
+				envio();
+			}else{
+				$('#firma').css('color','#F00');
+				$('#firma').html('Error');
+			}
+		}
+	});
+}
+function envio()
+{
+	$.ajax({
+    	url: 'procesos/envio.php',
+    	type: 'get',
+		dataType:"json",
+		data: {'archivo': $('#arch').val() },
+		beforeSend: function(){
+			$('#envio').css('color','#000');
+			$('#envio').html('Procesando..');
+		},
+    	success: function(response) {
+			//alert(response);
+			if(response[0]==0)
+			{
+				alert('WebService SRI Inaccesible');
+			}else{
+				if(response[1]=='RECIBIDA')
+				{
+					$('#envio').css('color','#0F0');
+					$('#envio').html('Ok');
+					autorizacion();
+				}else{
+					$('#envio').css('color','#F00');
+					$('#envio').html('Error '+response[2]);
+				}
+			}
+		}
+	});
+}
+function autorizacion()
+{
+	$.ajax({
+    	url: 'procesos/autoriza.php',
+    	type: 'get',
+		dataType:"json",
+		data: {'clave': $('#clave').val() },
+		beforeSend: function(){
+			$('#autoriza').css('color','#000');
+			$('#autoriza').html('Procesando..');
+		},
+    	success: function(response) {
+			alert(response);
+			if(response[0]==0)
+			{
+				alert('WebService SRI Inaccesible');
+			}else{
+				if(response[1]=='AUTORIZADO')
+				{
+					$('#autoriza').css('color','#0F0');
+					$('#autoriza').html('Ok');
+				}else{
+					$('#autoriza').css('color','#F00');
+					$('#autoriza').html('Error '+response[2]);
+				}
+			}
+		}
+	});
+}
+function generaPDF()
+{
+	window.open("procesos/pdf.php?id="+$('#clave').val(),"_blank");
+}
+</script>
+</head>
+
+<body>
+<h1>Facturar Electrónicamente</h1>
+<br />
+<label>Clave de Aceso: </label><input type="text" id="clave" size="65" />
+<br />
+<label>Nombre Archivo XML: </label><input type="text" id="arch" style="margin-top:5px" /><button type="button" onclick="inicio();" style="margin-left:8px">FACTURAR</button>
+<br />
+<br />
+<label>Firmado: </label><label id="firma" style="margin-left:8px"></label>
+<br />
+<label>Envío: </label><label id="envio" style="margin-left:8px"></label>
+<br />
+<label>Autorización: </label><label id="autoriza" style="margin-left:8px"></label>
+<br />
+<br />
+<button type="button" onclick="generaPDF();">Descargar PDF</button>
+</body>
+</html>

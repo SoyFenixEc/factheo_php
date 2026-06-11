@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminación de Cuenta - FacTheo</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .warning-section {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left: 5px solid #ffc107;
+        }
+        .step-card {
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+        .step-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="#">
+                <i class="bi bi-trash-fill me-2"></i>Eliminación de Cuenta
+            </a>
+            <a href="https://factheo.com" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left me-2"></i>Volver a FacTheo
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Header -->
+                <div class="text-center mb-5">
+                    <i class="bi bi-exclamation-triangle-fill display-1 text-warning mb-3"></i>
+                    <h1 class="display-5 fw-bold text-dark">Eliminación de Cuenta</h1>
+                    <p class="lead text-muted">Proceso para eliminar permanentemente tu cuenta y datos de FacTheo</p>
+                </div>
+
+                <!-- Critical Warning -->
+                <div class="alert warning-section alert-dismissible fade show" role="alert">
+                    <div class="d-flex">
+                        <i class="bi bi-exclamation-octagon-fill display-4 text-warning me-3"></i>
+                        <div>
+                            <h4 class="alert-heading">¡ADVERTENCIA CRÍTICA!</h4>
+                            <p class="mb-2">La eliminación de tu cuenta es un proceso <strong>IRREVERSIBLE</strong> que resultará en la pérdida permanente de:</p>
+                            <ul class="mb-0">
+                                <li>Todos tus datos personales y de registro</li>
+                                <li>Información de empresas y RUC registrados</li>
+                                <li>Firma electrónica almacenada</li>
+                                <li>Historial completo de facturas y clientes</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legal Retention Notice -->
+                <div class="card border-info mb-4">
+                    <div class="card-header bg-info text-white">
+                        <i class="bi bi-building me-2"></i>
+                        Información sobre Retención Legal
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">De acuerdo con las regulaciones tributarias del Ecuador, podemos estar obligados a conservar cierta información de facturación por períodos legales específicos, incluso después de que solicites la eliminación de tu cuenta. Esta información se conservará de forma anonimizada cuando sea legalmente posible.</p>
+                    </div>
+                </div>
+
+                <!-- Process Steps -->
+                <h2 class="h3 mb-4 text-center">
+                    <i class="bi bi-list-ol text-primary me-2"></i>
+                    Proceso de Eliminación
+                </h2>
+
+                <div class="row">
+                    <!-- Step 1 -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card step-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="step-number">1</div>
+                                    <h5 class="card-title mb-0">Iniciar Sesión</h5>
+                                </div>
+                                <p class="card-text">Accede a tu cuenta de FacTheo con tus credenciales actuales.</p>
+                                <div class="text-center">
+                                    <i class="bi bi-box-arrow-in-right display-6 text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card step-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="step-number">2</div>
+                                    <h5 class="card-title mb-0">Configuración</h5>
+                                </div>
+                                <p class="card-text">Navega a la sección "Configuración" o "Mi Cuenta" en el menú principal.</p>
+                                <div class="text-center">
+                                    <i class="bi bi-gear-fill display-6 text-success"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card step-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="step-number">3</div>
+                                    <h5 class="card-title mb-0">Eliminar Cuenta</h5>
+                                </div>
+                                <p class="card-text">Selecciona la opción "Eliminar Cuenta" en la configuración de seguridad.</p>
+                                <div class="text-center">
+                                    <i class="bi bi-trash-fill display-6 text-danger"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card step-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="step-number">4</div>
+                                    <h5 class="card-title mb-0">Confirmación</h5>
+                                </div>
+                                <p class="card-text">Sigue las instrucciones en pantalla y confirma la eliminación.</p>
+                                <div class="text-center">
+                                    <i class="bi bi-check-circle-fill display-6 text-warning"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alternative Method -->
+                <div class="card border-warning">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h5 class="card-title">
+                                    <i class="bi bi-life-preserver me-2"></i>
+                                    ¿Problemas técnicos?
+                                </h5>
+                                <p class="card-text mb-0">Si no puedes acceder a tu cuenta o encuentras dificultades, contáctanos directamente para procesar tu solicitud manualmente.</p>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <a href="mailto:factheoec@gmail.com" class="btn btn-warning btn-lg">
+                                    <i class="bi bi-envelope me-2"></i>Solicitar Ayuda
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Processing Time -->
+                <div class="text-center mt-4">
+                    <div class="alert alert-light border" role="alert">
+                        <i class="bi bi-clock-history me-2 text-primary"></i>
+                        <strong>Tiempo de procesamiento:</strong> Las solicitudes de eliminación se procesan dentro de un plazo máximo de <strong>30 días</strong>. Recibirás confirmación por correo electrónico.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2023 FacTheo. Todos los derechos reservados.</p>
+            <div class="mt-2">
+                <a href="privacy_policy.html" class="text-white text-decoration-none me-3">Política de Privacidad</a>
+                <a href="terms_of_service.html" class="text-white text-decoration-none me-3">Términos y Condiciones</a>
+                <a href="cookie_policy.html" class="text-white text-decoration-none">Política de Cookies</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
