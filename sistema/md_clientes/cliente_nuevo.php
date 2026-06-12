@@ -84,19 +84,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         </div>
                                         <div class="form-group">
                                             <label>Identificación</label>
-                                            <input type="number" name="identificacion" class="form-control" required>
+                                            <input type="text" name="identificacion" class="form-control" required>
                                         </div>
                                         <div class="form-group">
                                             <label>Dirección</label>
-                                            <input type="text" name="direccion" class="form-control" required>
+                                            <input type="text" name="direccion" class="form-control">
                                         </div>
                                         <div class="form-group">
                                             <label>Teléfono</label>
-                                            <input type="text" name="telefono" class="form-control" required>
+                                            <input type="text" name="telefono" class="form-control">
                                         </div>
                                         <div class="form-group">
                                             <label>Email</label>
-                                            <input type="email" name="email" class="form-control" required>
+                                            <input type="email" name="email" class="form-control">
                                         </div>
                                         <button type="submit" class="btn btn-primary">Guardar Cliente</button>
                                         <a href="cliente_lista.php" class="btn btn-secondary">Cancelar</a>

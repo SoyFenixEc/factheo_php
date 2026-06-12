@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // Construir la consulta base SIN el WHERE todavía
+    // Construir la consulta base
     $sql = "UPDATE empresa SET 
             nombre_comercial = :nombre_comercial, 
             razon_social = :razon_social, 
@@ -35,8 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             direccion = :direccion, 
             telefono = :telefono, 
             email = :email, 
-            clave_certificado = :clave_certificado";
-    
+            clave_certificado = :clave_certificado 
+            WHERE id = :id";
     $params = [
         ':nombre_comercial' => $nombre_comercial,
         ':razon_social' => $razon_social,
@@ -53,12 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_FILES['certificado']['name'])) {
         $certificado = $_FILES['certificado'];
         $certificado_name = $certificado['name'];
-        
-        // Crear directorio si no existe
-        if (!is_dir('certificados')) {
-            mkdir('certificados', 0777, true);
-        }
-        
         $ruta_certificado = 'certificados/' . basename($certificado['name']);
         if (move_uploaded_file($certificado['tmp_name'], $ruta_certificado)) {
             $sql .= ", certificado = :certificado";
@@ -69,21 +63,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Manejo del archivo logo
     if (!empty($_FILES['logo']['name'])) {
         $logo = $_FILES['logo'];
-        
-        // Crear directorio si no existe
-        if (!is_dir('logos')) {
-            mkdir('logos', 0777, true);
-        }
-        
         $ruta_logo = 'logos/' . basename($logo['name']);
         if (move_uploaded_file($logo['tmp_name'], $ruta_logo)) {
             $sql .= ", logo = :logo";
             $params[':logo'] = basename($logo['name']);
         }
     }
-
-    // Agregar el WHERE al final
-    $sql .= " WHERE id = :id";
 
     try {
         $stmt = $pdo->prepare($sql);

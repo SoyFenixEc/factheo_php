@@ -83,15 +83,13 @@ $ruta_logo = "../../../md_empresa/logos/" . $factura['logo'];
 
 // Verificar si el logo existe
 if (file_exists($ruta_logo)) {
-    //$pdf->Image($ruta_logo, 10, 10, 60, 30, '', '', 'C', false, 300, '', false, false, 0, false, false, false);
-	$pdf->Image($ruta_logo, 40, 10, 20, 20, '', '', 'C', false, 300, '', false, false, 0, false, false, false);
+    $pdf->Image($ruta_logo, 40, 10, 20, 20, '', '', 'C', false, 300, '', false, false, 0, false, false, false);
 } else {
     // Opcional: usar logo por defecto
     $ruta_logo_default = "../../../md_empresa/logos/logo_default.jpg";
     if (file_exists($ruta_logo_default)) {
         $pdf->Image($ruta_logo_default, 10, 10, 60, 30, '', '', 'C', false, 300, '', false, false, 0, false, false, false);
     }
-    // Si no hay logo, continúa sin imagen
 }
 
 // ================================================
@@ -166,10 +164,12 @@ $pdf->MultiCell(35, 0, $xmlComprobante->infoFactura->identificacionComprador, 0,
 $pdf->MultiCell(35, 0, $xmlComprobante->infoFactura->fechaEmision, 0, '', 0, 0, 45, 114, true, 0, false, true, 0, 'T');
 
 // ================================================
-// 10. DETALLES DE LA FACTURA
+// 10. DETALLES DE LA FACTURA (CORREGIDO)
 // ================================================
 $pdf->SetY(122);
 $pdf->SetFont('', 'B', 8);
+
+// Encabezados de la tabla
 $pdf->Cell(22, 7, 'Cod. Principal', 1, 0, 'C');
 $pdf->Cell(22, 7, 'Cod. Auxiliar', 1, 0, 'C');
 $pdf->Cell(17, 7, 'Cantidad', 1, 0, 'C');
@@ -181,19 +181,73 @@ $pdf->Ln();
 
 $pdf->SetFont('', '', 8);
 $contador = 0;
+$y_position = $pdf->GetY();
+
 foreach ($xmlComprobante->detalles->detalle as $detalle) {
-    $pdf->Cell(22, 6, (string)$detalle->codigoPrincipal, 1, 0, 'C');
-    $pdf->Cell(22, 6, '', 1, 0, 'C');
-    $pdf->Cell(17, 6, number_format((float)$detalle->cantidad, 2), 1, 0, 'C');
-    $pdf->Cell(70, 6, (string)$detalle->descripcion, 1, 0, 'L');
-    $pdf->Cell(20, 6, number_format((float)$detalle->precioUnitario, 2), 1, 0, 'R');
-    $pdf->Cell(19, 6, number_format((float)$detalle->descuento, 2), 1, 0, 'R');
-    $pdf->Cell(20, 6, number_format((float)$detalle->precioTotalSinImpuesto, 2), 1, 0, 'R');
-    $pdf->Ln();
-    $contador++;
-    if ($contador % 28 == 0) {
+    $codigoPrincipal = (string)$detalle->codigoPrincipal;
+    $cantidad = number_format((float)$detalle->cantidad, 2);
+    $descripcion = (string)$detalle->descripcion;
+    $precioUnitario = number_format((float)$detalle->precioUnitario, 2);
+    $descuento = number_format((float)$detalle->descuento, 2);
+    $precioTotal = number_format((float)$detalle->precioTotalSinImpuesto, 2);
+    
+    // Calcular la altura necesaria para la descripción
+    $descripcion_width = 70;
+    $descripcion_height = $pdf->getStringHeight($descripcion_width, $descripcion, false, true, '', 1);
+    $line_height = max(6, $descripcion_height); // Mínimo 6mm de altura
+    
+    // Verificar si necesitamos nueva página
+    if ($pdf->GetY() + $line_height > 270) { // 270 es aproximadamente el límite inferior de A4
         $pdf->AddPage();
+        $y_position = $pdf->GetY();
+        
+        // Redibujar encabezados en nueva página
+        $pdf->SetFont('', 'B', 8);
+        $pdf->Cell(22, 7, 'Cod. Principal', 1, 0, 'C');
+        $pdf->Cell(22, 7, 'Cod. Auxiliar', 1, 0, 'C');
+        $pdf->Cell(17, 7, 'Cantidad', 1, 0, 'C');
+        $pdf->Cell(70, 7, 'Descripción', 1, 0, 'C');
+        $pdf->Cell(20, 7, 'Pre. Unitario', 1, 0, 'C');
+        $pdf->Cell(19, 7, 'Desc.', 1, 0, 'C');
+        $pdf->Cell(20, 7, 'Total', 1, 0, 'C');
+        $pdf->Ln();
+        $pdf->SetFont('', '', 8);
+        $y_position = $pdf->GetY();
     }
+    
+    $x_position = $pdf->GetX();
+    $start_y = $pdf->GetY();
+    
+    // Codigo Principal
+    $pdf->MultiCell(22, $line_height, $codigoPrincipal, 1, 'C', 0, 0, $x_position, $start_y);
+    $x_position += 22;
+    
+    // Codigo Auxiliar (vacío)
+    $pdf->MultiCell(22, $line_height, '', 1, 'C', 0, 0, $x_position, $start_y);
+    $x_position += 22;
+    
+    // Cantidad
+    $pdf->MultiCell(17, $line_height, $cantidad, 1, 'C', 0, 0, $x_position, $start_y);
+    $x_position += 17;
+    
+    // Descripción (usa MultiCell para texto largo)
+    $pdf->MultiCell(70, $line_height, $descripcion, 1, 'L', 0, 0, $x_position, $start_y);
+    $x_position += 70;
+    
+    // Precio Unitario
+    $pdf->MultiCell(20, $line_height, $precioUnitario, 1, 'R', 0, 0, $x_position, $start_y);
+    $x_position += 20;
+    
+    // Descuento
+    $pdf->MultiCell(19, $line_height, $descuento, 1, 'R', 0, 0, $x_position, $start_y);
+    $x_position += 19;
+    
+    // Total
+    $pdf->MultiCell(20, $line_height, $precioTotal, 1, 'R', 0, 0, $x_position, $start_y);
+    
+    // Mover a la siguiente línea
+    $pdf->SetY($start_y + $line_height);
+    $contador++;
 }
 
 // ================================================

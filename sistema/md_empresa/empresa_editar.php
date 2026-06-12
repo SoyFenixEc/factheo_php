@@ -87,12 +87,12 @@ if (isset($_GET['id'])) {
                                     <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($empresa['email']); ?>" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Firma Digital archivo(.p12)</label>
-                                    <input type="file" name="certificado" class="form-control" readonly>
+                                    <label>Certificado Digital (.p12)</label>
+                                    <input type="file" name="certificado" class="form-control">
                                     <small>Dejar en blanco si no desea cambiar el certificado.</small>
                                 </div>
                                 <div class="form-group">
-                                    <label>Clave de Firma Digital archivo(.p12</label>
+                                    <label>Clave del Certificado</label>
                                     <input type="password" name="clave_certificado" class="form-control" value="<?php echo htmlspecialchars($empresa['clave_certificado']); ?>" required>
                                 </div>
                                 <div class="form-group">

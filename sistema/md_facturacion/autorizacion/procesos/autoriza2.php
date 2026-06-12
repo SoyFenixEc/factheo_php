@@ -30,18 +30,8 @@ $parametros = ["claveAccesoComprobante" => $clave_acceso];
 $imprime = [];
 
 try {
-    $client = new SoapClient($webAutoriza, ['connection_timeout' => 30, 'cache_wsdl' => WSDL_CACHE_NONE, 'trace' => true]);
+    $client = new SoapClient($webAutoriza, ['connection_timeout' => 30, 'cache_wsdl' => WSDL_CACHE_NONE]);
     $response = $client->autorizacionComprobante($parametros);
-
-  // // === LOG DEBUG SRI ===
-  // $logDebug = [
-  //     'clave_acceso' => $clave_acceso,
-  //     'raw_response' => $client->__getLastResponse(),
-  //     'parsed' => json_decode(json_encode($response), true)
-  // ];
-  // file_put_contents(__DIR__ . '/debug_autoriza_' . $factura_id . '.json', json_encode($logDebug, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-  // // =====================
-
     $autorizacion = $response->RespuestaAutorizacionComprobante->autorizaciones->autorizacion;
     $estado = $autorizacion->estado;
     if ($estado === 'AUTORIZADO') {

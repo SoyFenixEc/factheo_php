@@ -63,8 +63,7 @@ if (!is_dir($ruta_firmados) || !is_writable($ruta_firmados)) {
 }
 
 // === Comando corregido (rutas absolutas, formato correcto) ===
-$jvm_flags = "--add-exports java.xml/com.sun.org.apache.xerces.internal.dom=ALL-UNNAMED";
-$cmd = "java $jvm_flags -jar " .
+$cmd = "/opt/jdk8u422-b05/bin/java -jar " .
     escapeshellarg($jar_path) . " " .
     escapeshellarg($nombre_xml) . " " .
     escapeshellarg("$ruta_generados/") . " " .

@@ -65,11 +65,11 @@ require('../md_config/conexion.php');
                                     <input type="email" name="email" class="form-control" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Firma Digital archivo(.p12)</label>
+                                    <label>Certificado Digital (.p12)</label>
                                     <input type="file" name="certificado" class="form-control" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Clave de Firma Digital archivo(.p12)</label>
+                                    <label>Clave del Certificado</label>
                                     <input type="password" name="clave_certificado" class="form-control" required>
                                 </div>
                                 <div class="form-group">

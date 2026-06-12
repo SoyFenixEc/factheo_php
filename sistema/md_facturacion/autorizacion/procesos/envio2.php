@@ -66,8 +66,8 @@ if (!$ArchivoXML) {
 // ================================================
 // 4. CONFIGURACIÓN DEL SRI (PRUEBAS)
 // ================================================
-//$webRecepcion = "https://celcer.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl"; // Pruebas
-$webRecepcion = "https://cel.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl"; // Producción
+//$webRecepcion = "https://cel.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl"; // Pruebas
+$webRecepcion = "https://cel.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl"; // Pruebas
 
 $parametros = array("xml" => $ArchivoXML);
 $imprime = array();
