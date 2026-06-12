@@ -3,6 +3,9 @@
 sistema/md_empresa/certificados/
 sistema/md_empresa/logos/
 
+# Certificado de prueba en librerías (ya no debe trackearse)
+sistema/md_facturacion/autorizacion/librerias/firma.p12
+
 # Comprobantes generados (XML autorizados, firmados, etc)
 sistema/md_facturacion/autorizacion/comprobantes/autorizados/
 sistema/md_facturacion/autorizacion/comprobantes/errores/
@@ -19,6 +22,7 @@ sistema/uploads/
 # Archivos temporales de respaldo
 *.bak
 *.bak2
+*~
 
 # Archivos sospechosos (posibles shells)
 sistema/md_productos/img/*.php
@@ -26,6 +30,7 @@ sistema/md_productos/img/*.php
 # Configuraciones locales
 sistema/md_config/conexion.php
 .env
+config.php
 
 # Logs
 *.log
@@ -35,3 +40,6 @@ sistema/md_config/conexion.php
 
 # Archivos huérfanos
 index.phpp
+
+# Notas y bloques de notas
+notas.txt
