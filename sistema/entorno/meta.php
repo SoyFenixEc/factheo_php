@@ -18,7 +18,7 @@
 <meta name="author" content="">
 	
 		
-<link rel="icon" href="/factheo/favicon.ico" type="image/x-icon">
-<link rel="shortcut icon" href="/factheo/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 
 	

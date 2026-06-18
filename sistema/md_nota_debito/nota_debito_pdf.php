@@ -2,7 +2,7 @@
 $id = (int)($_GET['id'] ?? 0);
 if (!$id) die("ID inválido");
 
-$base = '/var/www/html/factheo/sistema';
+$base = '/var/www/app.factheo.com/sistema';
 require "$base/md_config/conexion.php";
 
 $stmt = $pdo->prepare("SELECT f.*, e.logo, e.razon_social, e.nombre_comercial, e.ruc, e.direccion, e.contribuyente_especial, e.obligado_contabilidad FROM facturas f JOIN empresa e ON f.empresa_id = e.id WHERE f.id = ? AND f.tipo_comprobante_id = '05' AND f.estado_xml = 'AUTORIZADO'");
