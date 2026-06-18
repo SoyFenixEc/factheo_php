@@ -4,29 +4,29 @@
 </a>
 
 <!-- jQuery (debe ir primero) -->
-<script src="<?= URL_BASE ?>vendor/jquery/jquery.min.js"></script>
+<script src="/factheo/vendor/jquery/jquery.min.js"></script>
 
 <!-- Bootstrap 5 Bundle (incluye Popper.js) - ¡ASEGÚRATE DE QUE SEA VERSIÓN 5! -->
-<script src="<?= URL_BASE ?>vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/factheo/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 <!-- jQuery Easing -->
-<script src="<?= URL_BASE ?>vendor/jquery-easing/jquery.easing.min.js"></script>
+<script src="/factheo/vendor/jquery-easing/jquery.easing.min.js"></script>
 
 <!-- SweetAlert2 -->
-<script src="<?= URL_BASE ?>vendor/sweetalert2/sweetalert2.all.min.js"></script>
+<script src="/factheo/vendor/sweetalert2/sweetalert2.all.min.js"></script>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 
 <!-- Scripts personalizados de la plantilla -->
-<script src="<?= URL_BASE ?>js/sb-admin-2.min.js"></script>
+<script src="/factheo/js/sb-admin-2.min.js"></script>
 
 <!-- Scripts para gráficos demo (si los usas) -->
-<script src="<?= URL_BASE ?>js/demo/chart-area-demo.js"></script>
-<script src="<?= URL_BASE ?>js/demo/chart-pie-demo.js"></script>
+<script src="/factheo/js/demo/chart-area-demo.js"></script>
+<script src="/factheo/js/demo/chart-pie-demo.js"></script>
 
 <!-- Tus funciones personalizadas -->
-<script src="<?= URL_BASE ?>js/funciones.js"></script>
+<script src="/factheo/js/funciones.js"></script>
 
 <!-- Script para manejar el spinner -->
 <script>
