@@ -9,6 +9,7 @@ if (isset($_SESSION['usuario_id'])) {
 }
 
 // HTTPS redirect desactivado para desarrollo local
+require('sistema/md_config/constants.php');
 ?>
 <!DOCTYPE html>
 <html lang="es">

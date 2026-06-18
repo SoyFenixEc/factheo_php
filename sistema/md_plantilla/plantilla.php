@@ -1,5 +1,6 @@
 <?php
 require('../md_autenticacion/sesion.php');
+require('../md_config/constants.php');
 ?>
 <!DOCTYPE html>
 <html lang="es">

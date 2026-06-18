@@ -14,6 +14,7 @@ if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === "off") {
     header('Location: ' . $location);
     exit();
 }
+require('../md_config/constants.php');
 ?>
 <!DOCTYPE html>
 <html lang="es">

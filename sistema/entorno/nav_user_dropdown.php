@@ -24,13 +24,13 @@
             <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
             Registro de Actividades
         </a>
-        <a class="dropdown-item" href="/factheo/sistema/md_registros/pagina_sesiones.php">
+        <a class="dropdown-item" href="<?= URL_BASE ?>sistema/md_registros/pagina_sesiones.php">
             <i class="fas fa-clock fa-sm fa-fw mr-2 text-gray-400"></i>
             Registro de Sesiones
         </a>
 		-->
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="/factheo/sistema/md_autenticacion/logout.php">
+        <a class="dropdown-item" href="<?= URL_BASE ?>sistema/md_autenticacion/logout.php">
             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
             Cerrar sesión
         </a>
