@@ -1,4 +1,7 @@
 <?php
+// Configuración de constantes de entorno (URL_BASE, RUTA_SISTEMA)
+require_once __DIR__ . '/../md_config/constants.php';
+
 // Cargar el spinner de carga inicial
 //require('spinner.php');
 ?>
