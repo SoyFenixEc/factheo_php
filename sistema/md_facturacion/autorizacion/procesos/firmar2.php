@@ -96,8 +96,16 @@ if (!$java_bin) {
     $java_bin = 'java';
 }
 
-// Flags JVM para compatibilidad con Java 9+ (ignorados en Java ≤8)
-$jvm_flags = '--add-exports java.xml/com.sun.org.apache.xerces.internal.dom=ALL-UNNAMED --add-opens java.xml/com.sun.org.apache.xerces.internal.dom=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED';
+// Flags JVM para compatibilidad con Java 9+ (solo si Java ≥ 9)
+$jvm_flags = '';
+$java_version_output = shell_exec(escapeshellcmd($java_bin) . ' -version 2>&1');
+preg_match('/(\d+)\.(\d+)\./', $java_version_output, $matches);
+if (!empty($matches)) {
+    $major = (int)$matches[1];
+    if ($major >= 9) {
+        $jvm_flags = '--add-exports java.xml/com.sun.org.apache.xerces.internal.dom=ALL-UNNAMED --add-opens java.xml/com.sun.org.apache.xerces.internal.dom=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED';
+    }
+}
 
 // === Comando ===
 $cmd = escapeshellcmd($java_bin) . " $jvm_flags -jar " .
