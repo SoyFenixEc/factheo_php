@@ -10,6 +10,20 @@ if (!isset($_SESSION['usuario_id'])) {
 
 $usuario_id = $_SESSION['usuario_id'];
 
+// Función para formatear fecha en español
+function fechaEspanol($formato, $timestamp = null) {
+    $timestamp = $timestamp ?? time();
+    $dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+    $meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    if ($formato === 'l, d F Y') {
+        return ucfirst($dias[(int)date('w', $timestamp)]) . ', ' . date('d', $timestamp) . ' de ' . $meses[(int)date('n', $timestamp) - 1] . ' de ' . date('Y', $timestamp);
+    }
+    if ($formato === 'F') {
+        return ucfirst($meses[(int)date('n', $timestamp) - 1]);
+    }
+    return date($formato, $timestamp);
+}
+
 // Obtener empresas del usuario actual
 $sql_empresas = "SELECT id, nombre_comercial FROM empresa WHERE usuario_id = :usuario_id AND activa = 1 ORDER BY nombre_comercial";
 $stmt_empresas = $pdo->prepare($sql_empresas);
@@ -457,7 +471,7 @@ try {
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
                         <div class="d-none d-sm-inline-block">
-                            <span class="text-muted"><?php echo date('l, d F Y'); ?></span>
+                            <span class="text-muted"><?php echo fechaEspanol('l, d F Y'); ?></span>
                         </div>
                     </div>
 
@@ -589,7 +603,7 @@ try {
                                 </div>
                                 <div class="card-body">
                                     <div class="stat-number"><?php echo number_format($stats['facturas_mes']); ?></div>
-                                    <div class="text-muted">de <?php echo date('F'); ?></div>
+                                    <div class="text-muted">de <?php echo fechaEspanol('F'); ?></div>
                                 </div>
                             </div>
                         </div>
@@ -617,7 +631,7 @@ try {
                                 </div>
                                 <div class="card-body">
                                     <div class="stat-number">$<?php echo number_format($stats['ingresos_mes'], 2); ?></div>
-                                    <div class="text-muted"><?php echo date('F'); ?></div>
+                                    <div class="text-muted"><?php echo fechaEspanol('F'); ?></div>
                                 </div>
                             </div>
                         </div>
