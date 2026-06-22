@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS `detalle_retencion` (
   `num_aut_documento` varchar(49) DEFAULT NULL,
   `fecha_autorizacion_doc_sustento` date DEFAULT NULL,
   `monto_total` decimal(12,2) NOT NULL,
-  `pago_loc_ext` varchar(1) NOT NULL DEFAULT '01' COMMENT '01 local, 02 exterior',
+  `pago_loc_ext` varchar(2) NOT NULL DEFAULT '01' COMMENT '01 local, 02 exterior',
   `total_sin_impuestos` decimal(12,2) NOT NULL,
   `cod_impuesto_doc_sustento` varchar(1) NOT NULL DEFAULT '1' COMMENT '1=IVA, 2=Renta, 3=ICE',
   `codigo_porcentaje` varchar(2) NOT NULL,
