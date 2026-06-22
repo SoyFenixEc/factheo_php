@@ -91,10 +91,10 @@ if (!$guia_data) die("<div class='alert alert-danger'>Guía de Remisión no enco
             if(!d1.ok) throw new Error('Error al generar XML: '+d1.error);
             log('XML generado: '+d1.archivo,'success');
 
-            // PASO 2: Firmar XML (reusa firmar2.php de facturación)
+            // PASO 2: Firmar XML (procesos específicos de guía)
             upd(2,4,'Firmando XML...');
             log('Paso 2: Firmando XML...','processing');
-            const r2=await fetch('../md_facturacion/autorizacion/procesos/firmar2.php?id='+id+'&tipo=guia');
+            const r2=await fetch('procesos/firmar_guia.php?id='+id);
             const d2=await r2.json();
             if(!d2.ok) throw new Error('Firmar: '+(d2.error||'Error en firma'));
             log('XML firmado correctamente.','success');
@@ -102,7 +102,7 @@ if (!$guia_data) die("<div class='alert alert-danger'>Guía de Remisión no enco
             // PASO 3: Enviar al SRI
             upd(3,4,'Enviando al SRI...');
             log('Paso 3: Enviando al SRI...','processing');
-            const r3=await fetch('../md_facturacion/autorizacion/procesos/envio2.php?id='+id+'&tipo=guia');
+            const r3=await fetch('procesos/enviar_guia.php?id='+id);
             const d3=await r3.json();
             if(d3[0]===0) throw new Error('Enviar: WebService SRI Inaccesible');
             if(d3[1]!=='RECIBIDA') throw new Error('Enviar: Error '+(d3[2]||'desconocido'));
@@ -111,7 +111,7 @@ if (!$guia_data) die("<div class='alert alert-danger'>Guía de Remisión no enco
             // PASO 4: Autorizar
             upd(4,4,'Autorizando en SRI...');
             log('Paso 4: Autorizando en SRI...','processing');
-            const r4=await fetch('../md_facturacion/autorizacion/procesos/autoriza2.php?id='+id+'&tipo=guia');
+            const r4=await fetch('procesos/autorizar_guia.php?id='+id);
             const d4=await r4.json();
             if(d4[0]===0) throw new Error('Autorizar: WebService SRI Inaccesible');
             if(d4[1]!=='AUTORIZADO') throw new Error('Autorizar: '+(d4[2]||'Error desconocido'));

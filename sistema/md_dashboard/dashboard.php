@@ -43,6 +43,10 @@ $productos_bajo_stock = [];
 try {
     $where_empresa = $empresa_filtro ? ' AND e.id = :empresa_id' : '';
     $where_fechas = ' AND f.fecha_emision BETWEEN :fecha_inicio AND :fecha_fin';
+    $where_fechas_guias = ' AND g.fecha_emision BETWEEN :fecha_inicio AND :fecha_fin';
+    $where_empresa_guias = $empresa_filtro ? ' AND g.empresa_id = :empresa_id' : '';
+    $where_fechas_retenciones = ' AND cr.fecha_emision BETWEEN :fecha_inicio AND :fecha_fin';
+    $where_empresa_retenciones = $empresa_filtro ? ' AND cr.empresa_id = :empresa_id' : '';
     
     // Estadísticas principales
     $sql_stats = "
@@ -73,7 +77,25 @@ try {
              WHERE f.tipo_comprobante_id = '01' AND e.usuario_id = :usuario_id $where_empresa $where_fechas AND f.estado_xml = 'AUTORIZADO'), 0) as promedio_venta,
             
             (SELECT COUNT(DISTINCT cliente_id) FROM facturas f JOIN empresa e ON f.empresa_id = e.id WHERE f.tipo_comprobante_id = '01' 
-             WHERE f.tipo_comprobante_id = '01' AND e.usuario_id = :usuario_id $where_empresa $where_fechas) as clientes_activos
+             WHERE f.tipo_comprobante_id = '01' AND e.usuario_id = :usuario_id $where_empresa $where_fechas) as clientes_activos,
+            
+            -- Nuevos contadores por tipo de comprobante
+            (SELECT COUNT(*) FROM facturas f JOIN empresa e ON f.empresa_id = e.id 
+             WHERE f.tipo_comprobante_id = '03' AND e.usuario_id = :usuario_id $where_empresa $where_fechas) as total_liquidaciones,
+            
+            (SELECT COUNT(*) FROM facturas f JOIN empresa e ON f.empresa_id = e.id 
+             WHERE f.tipo_comprobante_id = '04' AND e.usuario_id = :usuario_id $where_empresa $where_fechas) as total_notas_credito,
+            
+            (SELECT COUNT(*) FROM facturas f JOIN empresa e ON f.empresa_id = e.id 
+             WHERE f.tipo_comprobante_id = '05' AND e.usuario_id = :usuario_id $where_empresa $where_fechas) as total_notas_debito,
+            
+            -- Guías de Remisión (tabla independiente)
+            (SELECT COUNT(*) FROM guias_remision g JOIN empresa e ON g.empresa_id = e.id 
+             WHERE e.usuario_id = :usuario_id $where_fechas_guias $where_empresa_guias) as total_guias,
+            
+            -- Comprobantes de Retención (tabla independiente)
+            (SELECT COUNT(*) FROM comprobantes_retencion cr JOIN empresa e ON cr.empresa_id = e.id 
+             WHERE e.usuario_id = :usuario_id $where_fechas_retenciones $where_empresa_retenciones) as total_retenciones
     ";
     
     $stmt_stats = $pdo->prepare($sql_stats);
@@ -97,7 +119,12 @@ try {
         'total_productos'=> (int)$row['total_productos'],
         'total_bodegas'  => (int)$row['total_bodegas'],
         'promedio_venta' => (float)$row['promedio_venta'],
-        'clientes_activos' => (int)$row['clientes_activos']
+        'clientes_activos' => (int)$row['clientes_activos'],
+        'total_liquidaciones' => (int)$row['total_liquidaciones'],
+        'total_notas_credito' => (int)$row['total_notas_credito'],
+        'total_notas_debito' => (int)$row['total_notas_debito'],
+        'total_guias' => (int)$row['total_guias'],
+        'total_retenciones' => (int)$row['total_retenciones']
     ];
 
     // Estado de Facturas
@@ -267,6 +294,11 @@ try {
         'total_bodegas' => 0,
         'promedio_venta' => 0,
         'clientes_activos' => 0,
+        'total_liquidaciones' => 0,
+        'total_notas_credito' => 0,
+        'total_notas_debito' => 0,
+        'total_guias' => 0,
+        'total_retenciones' => 0,
         'estados_facturas' => [],
         'ultimas_facturas' => [],
         'productos_mas_vendidos' => []
@@ -645,6 +677,76 @@ try {
                                 <div class="card-body">
                                     <div class="stat-number"><?php echo number_format($stats['total_productos']); ?></div>
                                     <div class="text-muted">En inventario</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Liquidaciones de Compra -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="stat-card">
+                                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0 font-weight-bold">Liquidaciones</h6>
+                                    <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="stat-number"><?php echo number_format($stats['total_liquidaciones']); ?></div>
+                                    <div class="text-muted">En período seleccionado</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notas de Crédito -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="stat-card">
+                                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0 font-weight-bold">Notas de Crédito</h6>
+                                    <div class="stat-icon"><i class="fas fa-sticky-note"></i></div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="stat-number"><?php echo number_format($stats['total_notas_credito']); ?></div>
+                                    <div class="text-muted">En período seleccionado</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notas de Débito -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="stat-card">
+                                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0 font-weight-bold">Notas de Débito</h6>
+                                    <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="stat-number"><?php echo number_format($stats['total_notas_debito']); ?></div>
+                                    <div class="text-muted">En período seleccionado</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Guías de Remisión -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="stat-card">
+                                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0 font-weight-bold">Guías de Remisión</h6>
+                                    <div class="stat-icon"><i class="fas fa-truck-loading"></i></div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="stat-number"><?php echo number_format($stats['total_guias']); ?></div>
+                                    <div class="text-muted">En período seleccionado</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Retenciones -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="stat-card">
+                                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0 font-weight-bold">Retenciones</h6>
+                                    <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="stat-number"><?php echo number_format($stats['total_retenciones']); ?></div>
+                                    <div class="text-muted">En período seleccionado</div>
                                 </div>
                             </div>
                         </div>
