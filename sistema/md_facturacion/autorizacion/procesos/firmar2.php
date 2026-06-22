@@ -64,19 +64,34 @@ if (!is_dir($ruta_firmados) || !is_writable($ruta_firmados)) {
 
 // === Detectar Java automáticamente ===
 $java_paths = [
+    '/opt/jdk8u422-b05/bin/java',           // Kali dev
     '/usr/lib/jvm/java-21-openjdk-amd64/bin/java',
     '/usr/lib/jvm/java-11-openjdk-amd64/bin/java',
     '/usr/lib/jvm/java-25-openjdk-amd64/bin/java',
     '/usr/lib/jvm/default-java/bin/java',
-    '/opt/jdk8u422-b05/bin/java',
-    'java'  // fallback: lo que haya en PATH
+    '/usr/lib/jvm/zulu-7-amd64/bin/java',   // Producción (Zulu 7)
+    '/usr/lib/jvm/zulu-8-amd64/bin/java',
+    '/usr/lib/jvm/zulu-11-amd64/bin/java',
+    '/usr/lib/jvm/jdk8/bin/java',
+    '/usr/lib/jvm/jdk-8/bin/java',
 ];
-$java_bin = 'java';
+$java_bin = null;
 foreach ($java_paths as $path) {
     if (file_exists($path) && is_executable($path)) {
         $java_bin = $path;
         break;
     }
+}
+// Fallback: buscar en PATH del sistema con which
+if (!$java_bin) {
+    $which = trim(shell_exec('which java 2>/dev/null') ?? '');
+    if ($which && file_exists($which) && is_executable($which)) {
+        $java_bin = $which;
+    }
+}
+// Último recurso: confiar en que el PATH del shell lo resuelva
+if (!$java_bin) {
+    $java_bin = 'java';
 }
 
 // === Comando ===
