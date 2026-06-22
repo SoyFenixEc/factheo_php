@@ -62,8 +62,25 @@ if (!is_dir($ruta_firmados) || !is_writable($ruta_firmados)) {
     die(json_encode(['ok' => false, 'error' => 'Carpeta firmados no accesible']));
 }
 
-// === Comando corregido (rutas absolutas, formato correcto) ===
-$cmd = "/opt/jdk8u422-b05/bin/java -jar " .
+// === Detectar Java automáticamente ===
+$java_paths = [
+    '/usr/lib/jvm/java-21-openjdk-amd64/bin/java',
+    '/usr/lib/jvm/java-11-openjdk-amd64/bin/java',
+    '/usr/lib/jvm/java-25-openjdk-amd64/bin/java',
+    '/usr/lib/jvm/default-java/bin/java',
+    '/opt/jdk8u422-b05/bin/java',
+    'java'  // fallback: lo que haya en PATH
+];
+$java_bin = 'java';
+foreach ($java_paths as $path) {
+    if (file_exists($path) && is_executable($path)) {
+        $java_bin = $path;
+        break;
+    }
+}
+
+// === Comando ===
+$cmd = escapeshellcmd($java_bin) . " -jar " .
     escapeshellarg($jar_path) . " " .
     escapeshellarg($nombre_xml) . " " .
     escapeshellarg("$ruta_generados/") . " " .
@@ -78,6 +95,7 @@ exec($cmd, $salida, $codigo);
 
 // Log
 $log = [
+    'java_bin' => $java_bin,
     'comando' => $cmd,
     'salida' => $salida,
     'codigo' => $codigo
@@ -89,6 +107,7 @@ if ($codigo !== 0) {
     die(json_encode([
         'ok' => false,
         'error' => 'Fallo en ejecución de Java',
+        'java_bin' => $java_bin,
         'codigo' => $codigo,
         'salida' => $salida
     ]));
