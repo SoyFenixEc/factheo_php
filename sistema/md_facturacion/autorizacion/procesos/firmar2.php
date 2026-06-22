@@ -63,17 +63,19 @@ if (!is_dir($ruta_firmados) || !is_writable($ruta_firmados)) {
 }
 
 // === Detectar Java automáticamente ===
+// QuijoteLuiFirmador es compatible con Java 8 (máximo). Java 9+ requiere --add-exports.
+// Priorizamos JDK 8 y Zulu 7/8 antes que Java moderno.
 $java_paths = [
-    '/opt/jdk8u422-b05/bin/java',           // Kali dev
-    '/usr/lib/jvm/java-21-openjdk-amd64/bin/java',
-    '/usr/lib/jvm/java-11-openjdk-amd64/bin/java',
-    '/usr/lib/jvm/java-25-openjdk-amd64/bin/java',
-    '/usr/lib/jvm/default-java/bin/java',
+    '/opt/jdk8u422-b05/bin/java',           // Kali dev (JDK 8)
+    '/usr/lib/jvm/zulu-8-amd64/bin/java',   // Zulu 8
     '/usr/lib/jvm/zulu-7-amd64/bin/java',   // Producción (Zulu 7)
-    '/usr/lib/jvm/zulu-8-amd64/bin/java',
-    '/usr/lib/jvm/zulu-11-amd64/bin/java',
     '/usr/lib/jvm/jdk8/bin/java',
     '/usr/lib/jvm/jdk-8/bin/java',
+    '/usr/lib/jvm/java-8-oracle/bin/java',
+    '/usr/lib/jvm/java-11-openjdk-amd64/bin/java',
+    '/usr/lib/jvm/java-21-openjdk-amd64/bin/java',
+    '/usr/lib/jvm/java-25-openjdk-amd64/bin/java',
+    '/usr/lib/jvm/default-java/bin/java',
 ];
 $java_bin = null;
 foreach ($java_paths as $path) {
@@ -94,8 +96,11 @@ if (!$java_bin) {
     $java_bin = 'java';
 }
 
+// Flags JVM para compatibilidad con Java 9+ (ignorados en Java ≤8)
+$jvm_flags = '--add-exports java.xml/com.sun.org.apache.xerces.internal.dom=ALL-UNNAMED --add-opens java.xml/com.sun.org.apache.xerces.internal.dom=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED';
+
 // === Comando ===
-$cmd = escapeshellcmd($java_bin) . " -jar " .
+$cmd = escapeshellcmd($java_bin) . " $jvm_flags -jar " .
     escapeshellarg($jar_path) . " " .
     escapeshellarg($nombre_xml) . " " .
     escapeshellarg("$ruta_generados/") . " " .
