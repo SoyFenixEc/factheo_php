@@ -231,11 +231,28 @@ if (!$factura) {
 			
 			// Manejar formato de respuesta para autoriza2.php (formato array)
 			if (data4[0] === 0) {
-				throw new Error("Autorizar: WebService SRI Inaccesible");
+				if (data4[1] === 'EN_PROCESO') {
+					log("⏳ SRI aún procesando, esperando 5s para reintentar...", 'processing');
+					await new Promise(r => setTimeout(r, 5000));
+					// Reintentar una vez más
+					const res4b = await fetch(`autorizacion/procesos/autoriza2.php?id=${id}`);
+					const data4b = await res4b.json();
+					if (data4b[0] === 0) {
+						throw new Error("Autorizar: " + (data4b[2] || 'WebService SRI Inaccesible'));
+					}
+					if (data4b[1] !== 'AUTORIZADO') {
+						throw new Error("Autorizar: Error " + (data4b[2] || data4b[1] || 'desconocido'));
+					}
+					data4[0] = data4b[0];
+					data4[1] = data4b[1];
+					data4[2] = data4b[2];
+				} else {
+					throw new Error("Autorizar: " + (data4[2] || 'WebService SRI Inaccesible'));
+				}
 			}
 			
 			if (data4[1] !== 'AUTORIZADO') {
-				throw new Error("Autorizar: Error " + (data4[2] || 'desconocido'));
+				throw new Error("Autorizar: Error " + (data4[2] || data4[1] || 'desconocido'));
 			}
 			
 			log("✅ Autorizado correctamente.", 'success');
