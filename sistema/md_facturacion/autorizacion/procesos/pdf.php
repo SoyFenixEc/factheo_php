@@ -19,6 +19,11 @@ try {
             f.clave_acceso, 
             f.numero_autorizacion, 
             f.fecha_autorizacion,
+            f.archivo_xml,
+            f.estado_xml,
+            f.xml_firmado,
+            f.xml_generado,
+            f.autorizado_sri,
             e.logo,
             f.iva,
             e.razon_social,
@@ -29,24 +34,59 @@ try {
             e.obligado_contabilidad
         FROM facturas f
         JOIN empresa e ON f.empresa_id = e.id
-        WHERE f.id = ? AND f.estado_xml = 'AUTORIZADO'
+        WHERE f.id = ?
     ");
     $stmt->execute([$id_factura]);
     $factura = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$factura) {
-        die('Factura no encontrada o no autorizada.');
+        die('Factura no encontrada.');
     }
 } catch (Exception $e) {
     die('Error al consultar la base de datos: ' . $e->getMessage());
 }
 
 // ================================================
-// 3. RUTA DEL XML AUTORIZADO
+// 3. BUSCAR EL XML (prioridad: autorizado > firmado > generado)
 // ================================================
-$ruta_xml = "../comprobantes/autorizados/fac_{$factura['numero_autorizacion']}.xml";
+$ruta_xml = null;
+$numero_referencia = '';
 
-if (!file_exists($ruta_xml)) {
-    die('Archivo XML autorizado no encontrado: ' . $ruta_xml);
+if ($factura['autorizado_sri'] && $factura['numero_autorizacion']) {
+    $ruta = "../comprobantes/autorizados/fac_{$factura['numero_autorizacion']}.xml";
+    if (file_exists($ruta)) {
+        $ruta_xml = $ruta;
+        $numero_referencia = $factura['numero_autorizacion'];
+    }
+}
+
+if (!$ruta_xml && $factura['xml_firmado'] && $factura['archivo_xml']) {
+    $ruta = "../comprobantes/firmados/{$factura['archivo_xml']}";
+    if (file_exists($ruta)) {
+        $ruta_xml = $ruta;
+        $numero_referencia = $factura['clave_acceso'];
+    }
+}
+
+if (!$ruta_xml && $factura['xml_generado'] && $factura['archivo_xml']) {
+    $ruta = "../comprobantes/generados/{$factura['archivo_xml']}";
+    if (file_exists($ruta)) {
+        $ruta_xml = $ruta;
+        $numero_referencia = $factura['clave_acceso'];
+    }
+}
+
+// Si no hay XML de ningún tipo, intentar con la clave de acceso
+if (!$ruta_xml) {
+    // Buscar cualquier XML en generados que coincida
+    $archivos = glob("../comprobantes/generados/*{$factura['clave_acceso']}*.xml");
+    if (!empty($archivos)) {
+        $ruta_xml = $archivos[0];
+        $numero_referencia = $factura['clave_acceso'];
+    }
+}
+
+if (!$ruta_xml) {
+    die('No se encontró ningún archivo XML para esta factura.');
 }
 
 // ================================================
@@ -138,12 +178,18 @@ $pdf->MultiCell(65, 0, "FACTURA No.: ", 0, '', 0, 0, 86, 17, true, 0, false, tru
 $pdf->SetFont('', '', 9);
 $pdf->MultiCell(47, 0, $xmlComprobante->infoTributaria->ruc, 0, '', 0, 0, 151, 12, true, 0, false, true, 0, 'T');
 $pdf->MultiCell(47, 6, $xmlComprobante->infoTributaria->estab . '-' . $xmlComprobante->infoTributaria->ptoEmi . '-' . $xmlComprobante->infoTributaria->secuencial, 0, '', 0, 0, 151, 17, true, 0, false, true, 6, 'M');
-$pdf->MultiCell(113, 0, $factura['numero_autorizacion'], 0, 'C', 0, 0, 86, 30, true, 0, false, true, 0, 'T');
-$pdf->MultiCell(47, 0, date('d/m/Y H:i:s', strtotime($factura['fecha_autorizacion'])), 0, '', 0, 0, 151, 36, true, 0, false, true, 0, 'T');
+$num_aut = $factura['numero_autorizacion'] ?? 'PENDIENTE DE AUTORIZACIÓN';
+$fecha_aut = $factura['fecha_autorizacion'] ? date('d/m/Y H:i:s', strtotime($factura['fecha_autorizacion'])) : ($factura['estado_xml'] ?? 'PENDIENTE');
+$pdf->MultiCell(113, 0, $num_aut, 0, 'C', 0, 0, 86, 30, true, 0, false, true, 0, 'T');
+$pdf->MultiCell(47, 0, $fecha_aut, 0, '', 0, 0, 151, 36, true, 0, false, true, 0, 'T');
 $pdf->MultiCell(47, 0, $xmlComprobante->infoTributaria->ambiente == '1' ? 'PRUEBAS' : 'PRODUCCIÓN', 0, '', 0, 0, 151, 50, true, 0, false, true, 0, 'T');
 $pdf->MultiCell(65, 0, "NORMAL", 0, '', 0, 0, 151, 55, true, 0, false, true, 0, 'T');
-$pdf->write1DBarcode($factura['numero_autorizacion'], 'C39E', 88, 75, 110, 15, 0.4, array(), 'N');
-$pdf->MultiCell(113, 0, $factura['numero_autorizacion'], 0, 'C', 0, 0, 86, 90, true, 0, false, true, 0, 'T');
+// Código de barras solo si está autorizado
+$barcode_data = $factura['numero_autorizacion'] ?? $factura['clave_acceso'];
+if ($factura['numero_autorizacion']) {
+    $pdf->write1DBarcode($barcode_data, 'C39E', 88, 75, 110, 15, 0.4, array(), 'N');
+}
+$pdf->MultiCell(113, 0, $barcode_data, 0, 'C', 0, 0, 86, 90, true, 0, false, true, 0, 'T');
 
 // ================================================
 // 9. DATOS DEL CLIENTE
@@ -298,4 +344,5 @@ $pdf->Cell(20, 7, $xmlComprobante->infoFactura->importeTotal, 1, 0, 'R');
 // ================================================
 // 12. SALIDA DEL PDF
 // ================================================
-$pdf->Output('factura_' . $factura['numero_autorizacion'] . '.pdf', 'I');
+$nombre_pdf = 'factura_' . ($factura['numero_autorizacion'] ?? $factura['clave_acceso'] ?? $id_factura) . '.pdf';
+$pdf->Output($nombre_pdf, 'I');

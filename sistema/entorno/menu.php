@@ -46,13 +46,13 @@
     </a>
 </li>
 <li class="nav-item">
-    <a class="nav-link" href="guia_remision.html">
+    <a class="nav-link" href="../md_guia_remision/guia_remision_lista.php">
         <i class="fas fa-truck-loading"></i>
         <span>Guía de Remisión</span>
     </a>
 </li>
 <li class="nav-item">
-    <a class="nav-link" href="comprobante_retencion.html">
+    <a class="nav-link" href="../md_comprobante_retencion/comprobante_retencion_lista.php">
         <i class="fas fa-hand-holding-usd"></i>
         <span>Retención</span>
     </a>
