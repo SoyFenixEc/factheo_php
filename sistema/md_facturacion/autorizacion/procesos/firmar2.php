@@ -63,18 +63,18 @@ if (!is_dir($ruta_firmados) || !is_writable($ruta_firmados)) {
 }
 
 // === Detectar Java automáticamente ===
-// QuijoteLuiFirmador es compatible con Java 8 (máximo). Java 9+ requiere --add-exports.
-// Priorizamos JDK 8 y Zulu 7/8 antes que Java moderno.
+// Orden de prioridad: primero lo que haya más moderno (Java 21 preferido en producción)
+// Java 9+ recibe --add-exports automáticamente, Java ≤8 no los necesita.
 $java_paths = [
     '/opt/jdk8u422-b05/bin/java',           // Kali dev (JDK 8)
+    '/usr/lib/jvm/java-21-openjdk-amd64/bin/java',   // Producción (preferido)
+    '/usr/lib/jvm/java-25-openjdk-amd64/bin/java',
+    '/usr/lib/jvm/java-11-openjdk-amd64/bin/java',
+    '/usr/lib/jvm/zulu-7-amd64/bin/java',   // Zulu 7 fallback
     '/usr/lib/jvm/zulu-8-amd64/bin/java',   // Zulu 8
-    '/usr/lib/jvm/zulu-7-amd64/bin/java',   // Producción (Zulu 7)
     '/usr/lib/jvm/jdk8/bin/java',
     '/usr/lib/jvm/jdk-8/bin/java',
     '/usr/lib/jvm/java-8-oracle/bin/java',
-    '/usr/lib/jvm/java-11-openjdk-amd64/bin/java',
-    '/usr/lib/jvm/java-21-openjdk-amd64/bin/java',
-    '/usr/lib/jvm/java-25-openjdk-amd64/bin/java',
     '/usr/lib/jvm/default-java/bin/java',
 ];
 $java_bin = null;
@@ -86,7 +86,9 @@ foreach ($java_paths as $path) {
 }
 // Fallback: buscar en PATH del sistema con which
 if (!$java_bin) {
-    $which = trim(shell_exec('which java 2>/dev/null') ?? '');
+    $which_output = [];
+    exec('which java 2>/dev/null', $which_output, $which_code);
+    $which = trim(implode('', $which_output));
     if ($which && file_exists($which) && is_executable($which)) {
         $java_bin = $which;
     }
@@ -98,8 +100,10 @@ if (!$java_bin) {
 
 // Flags JVM para compatibilidad con Java 9+ (solo si Java ≥ 9)
 $jvm_flags = '';
-$java_version_output = shell_exec(escapeshellcmd($java_bin) . ' -version 2>&1');
-preg_match('/(\d+)\.(\d+)\./', $java_version_output, $matches);
+$java_version_output = [];
+exec(escapeshellcmd($java_bin) . ' -version 2>&1', $java_version_output, $java_version_code);
+$java_version_str = implode("\n", $java_version_output);
+preg_match('/(\d+)\.(\d+)\./', $java_version_str, $matches);
 if (!empty($matches)) {
     $major = (int)$matches[1];
     if ($major >= 9) {
