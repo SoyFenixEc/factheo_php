@@ -170,21 +170,32 @@ function generarXMLFacturaSRI_1_1_0_Corregido($factura_id, $pdo, $ruta_generados
             $infoFactura->appendChild($dom->createElement('direccionComprador', htmlspecialchars(trim($factura['dir_cliente']), ENT_NOQUOTES, 'UTF-8')));
         }
 
-        $infoFactura->appendChild($dom->createElement('totalSinImpuestos', number_format($factura['subtotal2'], 2, '.', '')));
-        $infoFactura->appendChild($dom->createElement('totalDescuento', number_format($factura['descuento'], 2, '.', '')));
+        // Calcular totales desde los detalles (para que coincida con sum(lineas))
+        $sum_subtotales_lineas = array_sum(array_map(function($d) { return round($d['subtotal'], 2); }, $detalles));
+        $sum_ivas_lineas = array_sum(array_map(function($d) { return round($d['iva'], 2); }, $detalles));
+        $sum_totales_lineas = array_sum(array_map(function($d) { return round($d['total'], 2); }, $detalles));
+
+        $totalSinImpuestos = number_format($sum_subtotales_lineas, 2, '.', '');
+        $totalDescuento = number_format($factura['descuento'], 2, '.', '');
+        $baseImponibleIva = number_format($sum_subtotales_lineas, 2, '.', '');
+        $valorIva = number_format($sum_ivas_lineas, 2, '.', '');
+        $importeTotal = number_format($sum_totales_lineas - $factura['descuento'], 2, '.', '');
+
+        $infoFactura->appendChild($dom->createElement('totalSinImpuestos', $totalSinImpuestos));
+        $infoFactura->appendChild($dom->createElement('totalDescuento', $totalDescuento));
 
         // totalConImpuestos
         $totalConImpuestos = $dom->createElement('totalConImpuestos');
         $totalImpuesto = $dom->createElement('totalImpuesto');
         $totalImpuesto->appendChild($dom->createElement('codigo', '2'));
         $totalImpuesto->appendChild($dom->createElement('codigoPorcentaje', $codigo_porcentaje_iva));
-        $totalImpuesto->appendChild($dom->createElement('baseImponible', number_format($factura['subtotal2'], 2, '.', '')));
-        $totalImpuesto->appendChild($dom->createElement('valor', number_format($factura['valor_iva'], 2, '.', '')));
+        $totalImpuesto->appendChild($dom->createElement('baseImponible', $baseImponibleIva));
+        $totalImpuesto->appendChild($dom->createElement('valor', $valorIva));
         $totalConImpuestos->appendChild($totalImpuesto);
         $infoFactura->appendChild($totalConImpuestos);
 
         $infoFactura->appendChild($dom->createElement('propina', '0.00'));
-        $infoFactura->appendChild($dom->createElement('importeTotal', number_format($factura['total'], 2, '.', '')));
+        $infoFactura->appendChild($dom->createElement('importeTotal', $importeTotal));
         $infoFactura->appendChild($dom->createElement('moneda', 'DOLAR'));
 
         // pagos
