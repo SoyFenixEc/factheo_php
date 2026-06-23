@@ -174,9 +174,11 @@ try {
 		return $clave48 . $digitoVerificador;
 	}
 
+    $tipo_comprobante = '01'; // Siempre factura en este módulo
+
     $clave_acceso = generarClaveAcceso(
         $fecha_emision,
-        '01', // Factura
+        $tipo_comprobante,
         $empresa['ruc'],
         $punto['establecimiento'],
         $punto['punto_emision'],
@@ -196,15 +198,17 @@ try {
             empresa_id, cliente_id, forma_pago_id, punto_emision_id,
             comentarios, fecha_emision, subtotal1, descuento, subtotal2,
             iva, valor_iva, total, clave_acceso, estado_xml, xml_generado,
-            ambiente_id, establecimiento, punto_emision, secuencial, usuario_id
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDIENTE', 0, 2, ?, ?, ?, ?)
+            ambiente_id, establecimiento, punto_emision, secuencial, usuario_id,
+            tipo_comprobante_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDIENTE', 0, ?, ?, ?, ?, ?, ?)
     ";
     $stmt_factura = $pdo->prepare($sql_factura);
     $stmt_factura->execute([
         $empresa_id, $cliente_id, $forma_pago_id, $punto_emision_id,
         $comentarios, $fecha_emision, $subtotal1, $descuento, $subtotal2,
         $iva, $valor_iva, $total, $clave_acceso,
-        $punto['establecimiento'], $punto['punto_emision'], $nuevo_secuencial, $usuario_id
+        $empresa['ambiente_id'], $punto['establecimiento'], $punto['punto_emision'], $nuevo_secuencial, $usuario_id,
+        $tipo_comprobante
     ]);
     $factura_id = $pdo->lastInsertId();
 

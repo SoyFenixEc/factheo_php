@@ -1,9 +1,9 @@
 <?php
 /**
- * facturacion_generar_xml_1_1_0_corregido.php
+ * facturacion_generar_xml_1_1_0.php
  * Genera el XML de una factura electrónica v1.1.0 con DOMDocument
- * Orden correcto de atributos: id="comprobante" version="1.1.0"
- * Compatible con firma electrónica del SRI
+ * CORREGIDO: usa secuencial de la factura, tipo identificación desde BD,
+ * ambientes dinámicos, y validación de redondeo exacto SRI
  */
 require_once('../md_config/conexion.php');
 
@@ -29,15 +29,18 @@ function generarXMLFacturaSRI_1_1_0_Corregido($factura_id, $pdo, $ruta_generados
                 f.*,
                 e.razon_social, e.nombre_comercial, e.ruc, e.direccion AS dir_empresa, 
                 e.contribuyente_especial, e.obligado_contabilidad,
-                p.establecimiento, p.punto_emision, p.secuencial_factura,
+                p.establecimiento, p.punto_emision,
                 c.razon_social AS razon_social_cliente, 
                 c.identificacion, 
                 c.direccion AS dir_cliente,
+                c.id_tipos_identificacion,
+                ti.codigo AS tipo_ident_codigo_sri,
                 fp.codigo_sri AS forma_pago_sri
             FROM facturas f
             JOIN empresa e ON f.empresa_id = e.id
             JOIN punto_emision p ON f.punto_emision_id = p.id
             JOIN clientes c ON f.cliente_id = c.id
+            JOIN tipos_identificacion ti ON c.id_tipos_identificacion = ti.id
             JOIN formas_pago fp ON f.forma_pago_id = fp.id
             WHERE f.id = ?
         ";
@@ -71,14 +74,29 @@ function generarXMLFacturaSRI_1_1_0_Corregido($factura_id, $pdo, $ruta_generados
 
         // Formatear datos
         $fecha_emision = date('d/m/Y', strtotime($factura['fecha_emision']));
-        $secuencial = str_pad($factura['secuencial_factura'], 9, '0', STR_PAD_LEFT);
+        // CORREGIDO: usar f.secuencial (el asignado a la factura), NO p.secuencial_factura (contador actual)
+        $secuencial = str_pad($factura['secuencial'], 9, '0', STR_PAD_LEFT);
         $estab = str_pad($factura['establecimiento'], 3, '0', STR_PAD_LEFT);
         $ptoEmi = str_pad($factura['punto_emision'], 3, '0', STR_PAD_LEFT);
 
-        // IVA
-        $codigo_porcentaje_iva = '4'; //15%
-        //$tarifa_iva = number_format($factura['iva'], 2, '.', '');
-		$tarifa_iva = '15.0'; // Un decimal, como exige el SRI
+        // IVA dinámico según la tasa guardada en la factura
+        $porcentaje_iva = floatval($factura['iva']);
+        if ($porcentaje_iva <= 0) {
+            $codigo_porcentaje_iva = '0'; // 0%
+            $tarifa_iva = '0.0';
+        } elseif ($porcentaje_iva <= 5) {
+            $codigo_porcentaje_iva = '5'; // 5%
+            $tarifa_iva = number_format($porcentaje_iva, 1, '.', '');
+        } elseif ($porcentaje_iva <= 12) {
+            $codigo_porcentaje_iva = '2'; // 12%
+            $tarifa_iva = number_format($porcentaje_iva, 1, '.', '');
+        } elseif ($porcentaje_iva <= 14) {
+            $codigo_porcentaje_iva = '3'; // 14%
+            $tarifa_iva = number_format($porcentaje_iva, 1, '.', '');
+        } else {
+            $codigo_porcentaje_iva = '4'; // 15%
+            $tarifa_iva = number_format($porcentaje_iva, 1, '.', '');
+        }
 
         // Nombre del archivo
         $nombre_archivo = "FACTURA_v1.1_{$factura_id}_" . substr($factura['clave_acceso'], 0, 14) . ".xml";
@@ -99,7 +117,9 @@ function generarXMLFacturaSRI_1_1_0_Corregido($factura_id, $pdo, $ruta_generados
 
         // infoTributaria
         $infoTributaria = $dom->createElement('infoTributaria');
-        $infoTributaria->appendChild($dom->createElement('ambiente', '2'));
+        // CORREGIDO: usar ambiente_id dinámico de la factura
+        $ambiente = $factura['ambiente_id'] ?? '2';
+        $infoTributaria->appendChild($dom->createElement('ambiente', $ambiente));
         $infoTributaria->appendChild($dom->createElement('tipoEmision', '1'));
 
         // Formato correcto: APELLIDO NOMBRE
@@ -120,7 +140,9 @@ function generarXMLFacturaSRI_1_1_0_Corregido($factura_id, $pdo, $ruta_generados
         }
         $infoTributaria->appendChild($dom->createElement('ruc', $factura['ruc']));
         $infoTributaria->appendChild($dom->createElement('claveAcceso', $factura['clave_acceso']));
-        $infoTributaria->appendChild($dom->createElement('codDoc', '01'));
+        // CORREGIDO: codDoc dinámico desde tipo_comprobante_id
+        $codDoc = !empty($factura['tipo_comprobante_id']) ? $factura['tipo_comprobante_id'] : '01';
+        $infoTributaria->appendChild($dom->createElement('codDoc', $codDoc));
         $infoTributaria->appendChild($dom->createElement('estab', $estab));
         $infoTributaria->appendChild($dom->createElement('ptoEmi', $ptoEmi));
         $infoTributaria->appendChild($dom->createElement('secuencial', $secuencial));
@@ -139,7 +161,9 @@ function generarXMLFacturaSRI_1_1_0_Corregido($factura_id, $pdo, $ruta_generados
             $infoFactura->appendChild($dom->createElement('contribuyenteEspecial', $factura['contribuyente_especial']));
         }
         $infoFactura->appendChild($dom->createElement('obligadoContabilidad', $factura['obligado_contabilidad']));
-        $infoFactura->appendChild($dom->createElement('tipoIdentificacionComprador', strlen($factura['identificacion']) == 13 ? '04' : '05'));
+        // CORREGIDO: usar el código SRI real desde tipos_identificacion
+        $codIdentificacion = $factura['tipo_ident_codigo_sri'] ?? '05';
+        $infoFactura->appendChild($dom->createElement('tipoIdentificacionComprador', $codIdentificacion));
         $infoFactura->appendChild($dom->createElement('razonSocialComprador', htmlspecialchars(trim($factura['razon_social_cliente']), ENT_NOQUOTES, 'UTF-8')));
         $infoFactura->appendChild($dom->createElement('identificacionComprador', $factura['identificacion']));
         if (!empty($factura['dir_cliente'])) {

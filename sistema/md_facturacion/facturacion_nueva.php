@@ -481,11 +481,7 @@ $formas_pago = $stmt_formas_pago->fetchAll();
                 alert('Debe seleccionar un cliente.');
                 return false;
             }
-            if (ivaPorcentaje === 0) {
-                e.preventDefault();
-                alert('Debe seleccionar un punto de emisión con IVA configurado.');
-                return false;
-            }
+            // IVA 0% permitido (RUC que facturan sin IVA)
             actualizarCamposOcultos();
         });
 
