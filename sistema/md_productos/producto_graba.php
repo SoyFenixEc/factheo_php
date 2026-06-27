@@ -25,11 +25,15 @@ function comprimirImagen($origen, $destino, $tipo, $max_ancho = 300) {
         imagealphablending($lienzo, false);
         imagesavealpha($lienzo, true);
         imagecopyresampled($lienzo, $img, 0, 0, 0, 0, $nuevo_ancho, $nuevo_alto, $ancho, $alto);
-        imagepng($lienzo, $destino, 6); // compresión PNG 0-9
+        imagepng($lienzo, $destino, 6);
+    } elseif ($tipo == IMAGETYPE_WEBP) {
+        $img = imagecreatefromwebp($origen);
+        imagecopyresampled($lienzo, $img, 0, 0, 0, 0, $nuevo_ancho, $nuevo_alto, $ancho, $alto);
+        imagewebp($lienzo, $destino, 70);
     } else {
         $img = imagecreatefromjpeg($origen);
         imagecopyresampled($lienzo, $img, 0, 0, 0, 0, $nuevo_ancho, $nuevo_alto, $ancho, $alto);
-        imagejpeg($lienzo, $destino, 70); // calidad JPEG 70%
+        imagejpeg($lienzo, $destino, 70);
     }
 
     imagedestroy($img);
@@ -62,14 +66,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
         $img_info = getimagesize($_FILES['foto']['tmp_name']);
         $img_type = $img_info[2] ?? 0;
-        $allowed_types = [IMAGETYPE_JPEG, IMAGETYPE_PNG];
+        $allowed_types = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP];
 
         if (!in_array($img_type, $allowed_types)) {
-            echo "<script>alert('Solo se permiten imágenes JPG y PNG.'); window.location.href='producto_nuevo.php';</script>";
+            echo "<script>alert('Solo se permiten imágenes JPG, PNG y WEBP.'); window.location.href='producto_nuevo.php';</script>";
             exit;
         }
 
-        $ext = ($img_type == IMAGETYPE_PNG) ? '.png' : '.jpg';
+        if ($img_type == IMAGETYPE_PNG) {
+            $ext = '.png';
+        } elseif ($img_type == IMAGETYPE_WEBP) {
+            $ext = '.webp';
+        } else {
+            $ext = '.jpg';
+        }
         $foto_name = time() . '_' . md5($_FILES['foto']['name']) . $ext;
         $foto_path = realpath(__DIR__ . '/img/') . '/' . $foto_name;
 
