@@ -582,7 +582,7 @@ try {
                         </div>
                     </div>
 
-                    <!-- Estadísticas Principales -->
+                    <!-- Comprobantes -->
                     <div class="row row-equal">
                         <!-- Total Facturas -->
                         <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
@@ -598,8 +598,84 @@ try {
                             </div>
                         </div>
 
-                        <!-- Facturas del Mes -->
+                        <!-- Liquidaciones de Compra -->
                         <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+                            <div class="stat-card">
+                                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0 font-weight-bold">Liquidaciones</h6>
+                                    <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="stat-number"><?php echo number_format($stats['total_liquidaciones']); ?></div>
+                                    <div class="text-muted">En período seleccionado</div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Notas de Crédito -->
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+                            <div class="stat-card">
+                                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0 font-weight-bold">Notas de Crédito</h6>
+                                    <div class="stat-icon"><i class="fas fa-sticky-note"></i></div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="stat-number"><?php echo number_format($stats['total_notas_credito']); ?></div>
+                                    <div class="text-muted">En período seleccionado</div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Notas de Débito -->
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+                            <div class="stat-card">
+                                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0 font-weight-bold">Notas de Débito</h6>
+                                    <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="stat-number"><?php echo number_format($stats['total_notas_debito']); ?></div>
+                                    <div class="text-muted">En período seleccionado</div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Guías de Remisión -->
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+                            <div class="stat-card">
+                                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0 font-weight-bold">Guías de Remisión</h6>
+                                    <div class="stat-icon"><i class="fas fa-truck-loading"></i></div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="stat-number"><?php echo number_format($stats['total_guias']); ?></div>
+                                    <div class="text-muted">En período seleccionado</div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Retenciones -->
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+                            <div class="stat-card">
+                                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0 font-weight-bold">Retenciones</h6>
+                                    <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="stat-number"><?php echo number_format($stats['total_retenciones']); ?></div>
+                                    <div class="text-muted">En período seleccionado</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    </div>
+                    <!-- Estadísticas -->
+                    <div class="row row-equal">
                             <div class="stat-card">
                                 <div class="card-header-custom d-flex justify-content-between align-items-center">
                                     <h6 class="m-0 font-weight-bold">Facturas Este Mes</h6>
@@ -641,8 +717,7 @@ try {
                         </div>
                     </div>
 
-                    <!-- Nuevas Tarjetas Estadísticas -->
-                    <div class="row row-equal">
+
                         <!-- Promedio de Venta -->
                         <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
@@ -656,6 +731,7 @@ try {
                                 </div>
                             </div>
                         </div>
+
 
                         <!-- Clientes Activos -->
                         <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
@@ -671,6 +747,7 @@ try {
                             </div>
                         </div>
 
+
                         <!-- Total Clientes -->
                         <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
@@ -684,6 +761,7 @@ try {
                                 </div>
                             </div>
                         </div>
+
 
                         <!-- Total Productos -->
                         <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
@@ -699,78 +777,8 @@ try {
                             </div>
                         </div>
 
-                        <!-- Liquidaciones de Compra -->
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-                            <div class="stat-card">
-                                <div class="card-header-custom d-flex justify-content-between align-items-center">
-                                    <h6 class="m-0 font-weight-bold">Liquidaciones</h6>
-                                    <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="stat-number"><?php echo number_format($stats['total_liquidaciones']); ?></div>
-                                    <div class="text-muted">En período seleccionado</div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Notas de Crédito -->
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-                            <div class="stat-card">
-                                <div class="card-header-custom d-flex justify-content-between align-items-center">
-                                    <h6 class="m-0 font-weight-bold">Notas de Crédito</h6>
-                                    <div class="stat-icon"><i class="fas fa-sticky-note"></i></div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="stat-number"><?php echo number_format($stats['total_notas_credito']); ?></div>
-                                    <div class="text-muted">En período seleccionado</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Notas de Débito -->
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-                            <div class="stat-card">
-                                <div class="card-header-custom d-flex justify-content-between align-items-center">
-                                    <h6 class="m-0 font-weight-bold">Notas de Débito</h6>
-                                    <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="stat-number"><?php echo number_format($stats['total_notas_debito']); ?></div>
-                                    <div class="text-muted">En período seleccionado</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Guías de Remisión -->
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-                            <div class="stat-card">
-                                <div class="card-header-custom d-flex justify-content-between align-items-center">
-                                    <h6 class="m-0 font-weight-bold">Guías de Remisión</h6>
-                                    <div class="stat-icon"><i class="fas fa-truck-loading"></i></div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="stat-number"><?php echo number_format($stats['total_guias']); ?></div>
-                                    <div class="text-muted">En período seleccionado</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Retenciones -->
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-                            <div class="stat-card">
-                                <div class="card-header-custom d-flex justify-content-between align-items-center">
-                                    <h6 class="m-0 font-weight-bold">Retenciones</h6>
-                                    <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="stat-number"><?php echo number_format($stats['total_retenciones']); ?></div>
-                                    <div class="text-muted">En período seleccionado</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Sección Corregida - Layout Mejorado -->
+                    </div>                    <!-- Sección Corregida - Layout Mejorado -->
                     <div class="row">
                         <!-- Columna Principal (Izquierda) -->
                         <div class="col-lg-8">
