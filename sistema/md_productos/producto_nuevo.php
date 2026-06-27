@@ -64,12 +64,11 @@ $bodegas = $stmt_bodegas->fetchAll();
                                     <label>Descripción</label>
                                     <textarea name="descripcion" class="form-control" required></textarea>
                                 </div>
-								<!--
                                 <div class="form-group">
-                                    <label>Foto</label>
-                                    <input type="file" name="foto" class="form-control">
+                                    <label>Foto <small class="text-muted">(opcional)</small></label>
+                                    <input type="file" name="foto" class="form-control" accept="image/*">
                                 </div>
-								-->
+
                                 <div class="form-group">
                                     <label>Bodega</label>
                                     <select name="bodega_id" class="form-control" required>

@@ -335,7 +335,7 @@ $productos = $stmt->fetchAll();
                                                 <div class="imagen-placeholder">
                                                     <i class="fas fa-box"></i>
                                                 </div>
-                                            <?php endif; ?> -->
+                                            <?php endif; ?>
                                             <div class="producto-info">
                                                 <div class="producto-info-item">
                                                     <span class="producto-info-icon">
@@ -425,7 +425,7 @@ $productos = $stmt->fetchAll();
                                                 <th>Precio</th>
                                                 <th>Stock</th>
                                                 <th>Bodega</th>
-                                                <!--<th>Imagen</th>-->
+                                                <th>Foto</th>
                                                 <th width="150" class="text-center">Acciones</th>
                                             </tr>
                                         </thead>
@@ -460,7 +460,6 @@ $productos = $stmt->fetchAll();
                                                         </span>
                                                     </td>
                                                     <td><?= htmlspecialchars($producto['bodega_nombre']) ?></td>
-													<!--
                                                     <td>
                                                         <?php if (!empty($producto['foto'])): ?>
                                                             <img src="<?= htmlspecialchars($producto['foto']) ?>" alt="Producto" style="max-width: 60px; border-radius: 5px;">
@@ -469,7 +468,7 @@ $productos = $stmt->fetchAll();
                                                                 <i class="fas fa-box"></i>
                                                             </div>
                                                         <?php endif; ?>
-                                                    </td> -->
+                                                    </td>
                                                     <td class="table-actions text-center">
                                                         <a href="producto_editar.php?id=<?= $producto['id'] ?>" class="btn btn-warning btn-sm" title="Editar">
                                                             <i class="fas fa-edit"></i>
