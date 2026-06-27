@@ -273,7 +273,6 @@ $pdf->Ln(1);
 // PIE - LEYENDAS
 // ================================================
 $pdf->SetFont('', '', 6);
-$pdf->MultiCell($content_w, 0, "Documento Tributario Electronico", 0, 'C', 0, 1, $left);
 
 if ((string)$xml->infoTributaria->ambiente == '1') {
     $pdf->SetFont('', 'B', 8);
@@ -292,8 +291,7 @@ if (isset($infoAdicional)) {
     }
 }
 
-$pdf->SetFont('', '', 5);
-$pdf->MultiCell($content_w, 0, "Gracias por su preferencia", 0, 'C', 0, 1, $left);
+
 
 // ================================================
 // OUTPUT
