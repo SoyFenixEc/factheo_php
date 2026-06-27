@@ -338,10 +338,10 @@ try {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .stat-card {
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             transition: all 0.3s ease;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             border: none;
             overflow: hidden;
             height: 100%;
@@ -353,16 +353,20 @@ try {
         .card-header-custom {
             background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
             color: white;
-            padding: 15px 20px;
+            padding: 8px 14px;
             position: relative;
         }
+        .card-header-custom h6 {
+            font-size: 0.75rem;
+        }
         .stat-number {
-            font-size: 2rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: #5a5c69;
+            line-height: 1.2;
         }
         .stat-icon {
-            font-size: 2.5rem;
+            font-size: 1.5rem;
             opacity: 0.2;
         }
         .progress { height: 8px; margin-bottom: 10px; }
@@ -581,7 +585,7 @@ try {
                     <!-- Estadísticas Principales -->
                     <div class="row row-equal">
                         <!-- Total Facturas -->
-                        <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
                                 <div class="card-header-custom d-flex justify-content-between align-items-center">
                                     <h6 class="m-0 font-weight-bold">Total Facturas</h6>
@@ -595,7 +599,7 @@ try {
                         </div>
 
                         <!-- Facturas del Mes -->
-                        <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
                                 <div class="card-header-custom d-flex justify-content-between align-items-center">
                                     <h6 class="m-0 font-weight-bold">Facturas Este Mes</h6>
@@ -609,7 +613,7 @@ try {
                         </div>
 
                         <!-- Ingresos Totales -->
-                        <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
                                 <div class="card-header-custom d-flex justify-content-between align-items-center">
                                     <h6 class="m-0 font-weight-bold">Ingresos Totales</h6>
@@ -623,7 +627,7 @@ try {
                         </div>
 
                         <!-- Ingresos del Mes -->
-                        <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
                                 <div class="card-header-custom d-flex justify-content-between align-items-center">
                                     <h6 class="m-0 font-weight-bold">Ingresos Este Mes</h6>
@@ -640,7 +644,7 @@ try {
                     <!-- Nuevas Tarjetas Estadísticas -->
                     <div class="row row-equal">
                         <!-- Promedio de Venta -->
-                        <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
                                 <div class="card-header-custom d-flex justify-content-between align-items-center">
                                     <h6 class="m-0 font-weight-bold">Promedio por Venta</h6>
@@ -654,7 +658,7 @@ try {
                         </div>
 
                         <!-- Clientes Activos -->
-                        <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
                                 <div class="card-header-custom d-flex justify-content-between align-items-center">
                                     <h6 class="m-0 font-weight-bold">Clientes Activos</h6>
@@ -668,7 +672,7 @@ try {
                         </div>
 
                         <!-- Total Clientes -->
-                        <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
                                 <div class="card-header-custom d-flex justify-content-between align-items-center">
                                     <h6 class="m-0 font-weight-bold">Total Clientes</h6>
@@ -682,7 +686,7 @@ try {
                         </div>
 
                         <!-- Total Productos -->
-                        <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
                                 <div class="card-header-custom d-flex justify-content-between align-items-center">
                                     <h6 class="m-0 font-weight-bold">Total Productos</h6>
@@ -696,7 +700,7 @@ try {
                         </div>
 
                         <!-- Liquidaciones de Compra -->
-                        <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
                                 <div class="card-header-custom d-flex justify-content-between align-items-center">
                                     <h6 class="m-0 font-weight-bold">Liquidaciones</h6>
@@ -710,7 +714,7 @@ try {
                         </div>
 
                         <!-- Notas de Crédito -->
-                        <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
                                 <div class="card-header-custom d-flex justify-content-between align-items-center">
                                     <h6 class="m-0 font-weight-bold">Notas de Crédito</h6>
@@ -724,7 +728,7 @@ try {
                         </div>
 
                         <!-- Notas de Débito -->
-                        <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
                                 <div class="card-header-custom d-flex justify-content-between align-items-center">
                                     <h6 class="m-0 font-weight-bold">Notas de Débito</h6>
@@ -738,7 +742,7 @@ try {
                         </div>
 
                         <!-- Guías de Remisión -->
-                        <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
                                 <div class="card-header-custom d-flex justify-content-between align-items-center">
                                     <h6 class="m-0 font-weight-bold">Guías de Remisión</h6>
@@ -752,7 +756,7 @@ try {
                         </div>
 
                         <!-- Retenciones -->
-                        <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
                                 <div class="card-header-custom d-flex justify-content-between align-items-center">
                                     <h6 class="m-0 font-weight-bold">Retenciones</h6>
