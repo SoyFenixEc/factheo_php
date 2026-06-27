@@ -672,10 +672,10 @@ try {
                             </div>
                         </div>
                     </div>
-
-                    </div>
                     <!-- Estadísticas -->
                     <div class="row row-equal">
+                        <!-- Facturas del Mes -->
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
                                 <div class="card-header-custom d-flex justify-content-between align-items-center">
                                     <h6 class="m-0 font-weight-bold">Facturas Este Mes</h6>
@@ -716,8 +716,7 @@ try {
                             </div>
                         </div>
                     </div>
-
-
+                    <div class="row row-equal">
                         <!-- Promedio de Venta -->
                         <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
                             <div class="stat-card">
