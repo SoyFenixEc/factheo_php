@@ -524,11 +524,19 @@ function mantenerFiltros($filtro_empresa, $fecha_inicio, $fecha_fin, $filtro_est
                                                                         <i class="fas fa-ban"></i>
                                                                     </button>
                                                                 <?php endif; ?>
-                                                                <a href="autorizacion/procesos/pdf.php?id=<?= $f['id'] ?>" 
-                                                                   target="_blank"
-                                                                   class="btn btn-sm btn-danger" title="Ver PDF">
-                                                                    <i class="fas fa-file-pdf"></i>
-                                                                </a>
+                                                                <div class="btn-group btn-group-sm" role="group">
+                                                                    <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                        <i class="fas fa-file-pdf"></i>
+                                                                    </button>
+                                                                    <div class="dropdown-menu dropdown-menu-right">
+                                                                        <a class="dropdown-item" href="autorizacion/procesos/pdf.php?id=<?= $f['id'] ?>" target="_blank">
+                                                                            <i class="fas fa-file-pdf text-danger"></i> PDF
+                                                                        </a>
+                                                                        <a class="dropdown-item" href="autorizacion/procesos/pdf_ticket.php?id=<?= $f['id'] ?>" target="_blank">
+                                                                            <i class="fas fa-receipt text-dark"></i> Ticket
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -624,9 +632,19 @@ function mantenerFiltros($filtro_empresa, $fecha_inicio, $fecha_fin, $filtro_est
                                                         <i class="fas fa-check"></i> Autorizar
                                                     </a>
                                                 <?php endif; ?>
-                                                <a href="autorizacion/procesos/pdf.php?id=<?= $f['id'] ?>" target="_blank" class="btn btn-sm btn-danger">
-                                                    <i class="fas fa-file-pdf"></i> PDF
-                                                </a>
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <i class="fas fa-file-pdf"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu dropdown-menu-right">
+                                                        <a class="dropdown-item" href="autorizacion/procesos/pdf.php?id=<?= $f['id'] ?>" target="_blank">
+                                                            <i class="fas fa-file-pdf text-danger"></i> PDF
+                                                        </a>
+                                                        <a class="dropdown-item" href="autorizacion/procesos/pdf_ticket.php?id=<?= $f['id'] ?>" target="_blank">
+                                                            <i class="fas fa-receipt text-dark"></i> Ticket
+                                                        </a>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
