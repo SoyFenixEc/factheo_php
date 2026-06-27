@@ -51,13 +51,14 @@ function generarXMLFacturaSRI_1_1_0_Corregido($factura_id, $pdo, $ruta_generados
             throw new Exception("Factura no encontrada con ID: $factura_id");
         }
 
-        // Obtener detalles
+        // Obtener detalles (con iva_porcentaje por producto)
         $sql_detalle = "
             SELECT 
                 df.cantidad, 
                 df.precio_unitario, 
                 df.subtotal,
                 df.iva,
+                df.iva_porcentaje,
                 df.total,
                 COALESCE(prod.codigo, '') AS codigo_principal,
                 COALESCE(prod.nombre, 'PRODUCTO') AS descripcion
@@ -79,23 +80,14 @@ function generarXMLFacturaSRI_1_1_0_Corregido($factura_id, $pdo, $ruta_generados
         $estab = str_pad($factura['establecimiento'], 3, '0', STR_PAD_LEFT);
         $ptoEmi = str_pad($factura['punto_emision'], 3, '0', STR_PAD_LEFT);
 
-        // IVA dinámico según la tasa guardada en la factura
-        $porcentaje_iva = floatval($factura['iva']);
-        if ($porcentaje_iva <= 0) {
-            $codigo_porcentaje_iva = '0'; // 0%
-            $tarifa_iva = '0.0';
-        } elseif ($porcentaje_iva <= 5) {
-            $codigo_porcentaje_iva = '5'; // 5%
-            $tarifa_iva = number_format($porcentaje_iva, 1, '.', '');
-        } elseif ($porcentaje_iva <= 12) {
-            $codigo_porcentaje_iva = '2'; // 12%
-            $tarifa_iva = number_format($porcentaje_iva, 1, '.', '');
-        } elseif ($porcentaje_iva <= 14) {
-            $codigo_porcentaje_iva = '3'; // 14%
-            $tarifa_iva = number_format($porcentaje_iva, 1, '.', '');
-        } else {
-            $codigo_porcentaje_iva = '4'; // 15%
-            $tarifa_iva = number_format($porcentaje_iva, 1, '.', '');
+        // Función para mapear IVA porcentaje a código SRI y tarifa
+        function mapearIvaSRI($porcentaje) {
+            $pct = floatval($porcentaje);
+            if ($pct <= 0) return ['codigo' => '0', 'tarifa' => '0.0'];
+            if ($pct <= 5)  return ['codigo' => '5', 'tarifa' => number_format($pct, 1, '.', '')];
+            if ($pct <= 12) return ['codigo' => '2', 'tarifa' => number_format($pct, 1, '.', '')];
+            if ($pct <= 14) return ['codigo' => '3', 'tarifa' => number_format($pct, 1, '.', '')];
+            return ['codigo' => '4', 'tarifa' => number_format($pct, 1, '.', '')];
         }
 
         // Nombre del archivo
@@ -170,28 +162,39 @@ function generarXMLFacturaSRI_1_1_0_Corregido($factura_id, $pdo, $ruta_generados
             $infoFactura->appendChild($dom->createElement('direccionComprador', htmlspecialchars(trim($factura['dir_cliente']), ENT_NOQUOTES, 'UTF-8')));
         }
 
-        // Calcular totales desde los detalles (para que coincida con sum(lineas))
+        // Calcular totales desde los detalles
         $sum_subtotales_lineas = array_sum(array_map(function($d) { return round($d['subtotal'], 2); }, $detalles));
         $sum_ivas_lineas = array_sum(array_map(function($d) { return round($d['iva'], 2); }, $detalles));
         $sum_totales_lineas = array_sum(array_map(function($d) { return round($d['total'], 2); }, $detalles));
 
         $totalSinImpuestos = number_format($sum_subtotales_lineas, 2, '.', '');
         $totalDescuento = number_format($factura['descuento'], 2, '.', '');
-        $baseImponibleIva = number_format($sum_subtotales_lineas, 2, '.', '');
-        $valorIva = number_format($sum_ivas_lineas, 2, '.', '');
         $importeTotal = number_format($sum_totales_lineas - $factura['descuento'], 2, '.', '');
 
         $infoFactura->appendChild($dom->createElement('totalSinImpuestos', $totalSinImpuestos));
         $infoFactura->appendChild($dom->createElement('totalDescuento', $totalDescuento));
 
-        // totalConImpuestos
+        // totalConImpuestos — agrupar por cada tarifa de IVA
         $totalConImpuestos = $dom->createElement('totalConImpuestos');
-        $totalImpuesto = $dom->createElement('totalImpuesto');
-        $totalImpuesto->appendChild($dom->createElement('codigo', '2'));
-        $totalImpuesto->appendChild($dom->createElement('codigoPorcentaje', $codigo_porcentaje_iva));
-        $totalImpuesto->appendChild($dom->createElement('baseImponible', $baseImponibleIva));
-        $totalImpuesto->appendChild($dom->createElement('valor', $valorIva));
-        $totalConImpuestos->appendChild($totalImpuesto);
+        $ivaPorCodigo = [];
+        foreach ($detalles as $det) {
+            $pct = floatval($det['iva_porcentaje'] ?? 0);
+            $mapa = mapearIvaSRI($pct);
+            $codigo = $mapa['codigo'];
+            if (!isset($ivaPorCodigo[$codigo])) {
+                $ivaPorCodigo[$codigo] = ['base' => 0, 'valor' => 0, 'tarifa' => $mapa['tarifa']];
+            }
+            $ivaPorCodigo[$codigo]['base'] += round($det['subtotal'], 2);
+            $ivaPorCodigo[$codigo]['valor'] += round($det['iva'], 2);
+        }
+        foreach ($ivaPorCodigo as $codigo => $data) {
+            $totalImpuesto = $dom->createElement('totalImpuesto');
+            $totalImpuesto->appendChild($dom->createElement('codigo', '2'));
+            $totalImpuesto->appendChild($dom->createElement('codigoPorcentaje', $codigo));
+            $totalImpuesto->appendChild($dom->createElement('baseImponible', number_format($data['base'], 2, '.', '')));
+            $totalImpuesto->appendChild($dom->createElement('valor', number_format($data['valor'], 2, '.', '')));
+            $totalConImpuestos->appendChild($totalImpuesto);
+        }
         $infoFactura->appendChild($totalConImpuestos);
 
         $infoFactura->appendChild($dom->createElement('propina', '0.00'));
@@ -208,9 +211,12 @@ function generarXMLFacturaSRI_1_1_0_Corregido($factura_id, $pdo, $ruta_generados
 
         $facturaNode->appendChild($infoFactura);
 
-        // detalles
+        // detalles (con IVA independiente por producto)
         $detallesNode = $dom->createElement('detalles');
         foreach ($detalles as $det) {
+            $pctDet = floatval($det['iva_porcentaje'] ?? 0);
+            $mapaDet = mapearIvaSRI($pctDet);
+
             $detalle = $dom->createElement('detalle');
             if (!empty($det['codigo_principal'])) {
                 $detalle->appendChild($dom->createElement('codigoPrincipal', htmlspecialchars($det['codigo_principal'], ENT_NOQUOTES, 'UTF-8')));
@@ -224,8 +230,8 @@ function generarXMLFacturaSRI_1_1_0_Corregido($factura_id, $pdo, $ruta_generados
             $impuestos = $dom->createElement('impuestos');
             $impuesto = $dom->createElement('impuesto');
             $impuesto->appendChild($dom->createElement('codigo', '2'));
-            $impuesto->appendChild($dom->createElement('codigoPorcentaje', $codigo_porcentaje_iva));
-            $impuesto->appendChild($dom->createElement('tarifa', $tarifa_iva));
+            $impuesto->appendChild($dom->createElement('codigoPorcentaje', $mapaDet['codigo']));
+            $impuesto->appendChild($dom->createElement('tarifa', $mapaDet['tarifa']));
             $impuesto->appendChild($dom->createElement('baseImponible', number_format($det['subtotal'], 2, '.', '')));
             $impuesto->appendChild($dom->createElement('valor', number_format($det['iva'], 2, '.', '')));
             $impuestos->appendChild($impuesto);

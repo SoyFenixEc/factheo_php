@@ -123,7 +123,8 @@ $formas_pago = $stmt_formas_pago->fetchAll();
                                             <th>Cantidad</th>
                                             <th>Precio Unitario</th>
                                             <th>Subtotal</th>
-                                            <th>IVA</th>
+                                            <th>IVA %</th>
+                                            <th>Valor IVA</th>
                                             <th>Total + IVA</th>
                                             <th>Acciones</th>
                                         </tr>
@@ -185,6 +186,7 @@ $formas_pago = $stmt_formas_pago->fetchAll();
                         <input type="hidden" id="productos_subtotales" name="productos_subtotales">
                         <input type="hidden" id="productos_ivas" name="productos_ivas">
                         <input type="hidden" id="productos_totales" name="productos_totales">
+                        <input type="hidden" id="productos_iva_porcentajes" name="productos_iva_porcentajes">
 
                         <button type="submit" class="btn btn-primary">Generar Factura</button>
                     </form>
@@ -297,8 +299,15 @@ $formas_pago = $stmt_formas_pago->fetchAll();
                 cantidad, 
                 precio, 
                 subtotal,
+                iva_porcentaje: ivaPorcentaje,
                 iva,
                 total
+            });
+
+            let optionsIva = '';
+            [0, 5, 12, 14, 15].forEach(function(pct) {
+                let sel = (pct == ivaPorcentaje) ? 'selected' : '';
+                optionsIva += `<option value="${pct}" ${sel}>${pct}%</option>`;
             });
 
             $('#productos_seleccionados tbody').append(`
@@ -308,7 +317,12 @@ $formas_pago = $stmt_formas_pago->fetchAll();
                     <td><input type="number" class="form-control cantidad" value="${cantidad}" min="1"></td>
                     <td><input type="number" step="0.01" class="form-control precio-unitario" value="${precio.toFixed(2)}" min="0"></td>
                     <td class="subtotal">${subtotal.toFixed(2)}</td>
-                    <td class="iva">${iva.toFixed(2)}</td>
+                    <td>
+                        <select class="form-control iva-porcentaje">
+                            ${optionsIva}
+                        </select>
+                    </td>
+                    <td class="valor-iva">${iva.toFixed(2)}</td>
                     <td class="total-item">${total.toFixed(2)}</td>
                     <td><button class="btn btn-danger btn-sm btn-eliminar">X</button></td>
                 </tr>
@@ -331,28 +345,36 @@ $formas_pago = $stmt_formas_pago->fetchAll();
             actualizarCamposOcultos();
         });
 
+        // Cambiar IVA % por producto
+        $(document).on('change', '.iva-porcentaje', function() {
+            let tr = $(this).closest('tr');
+            let id = tr.data('id');
+            let prod = productos.find(p => p.id == id);
+            if (!prod) return;
+            prod.iva_porcentaje = parseFloat($(this).val()) || 0;
+            prod.iva = prod.subtotal * (prod.iva_porcentaje / 100);
+            prod.total = prod.subtotal + prod.iva;
+            tr.find('.valor-iva').text(prod.iva.toFixed(2));
+            tr.find('.total-item').text(prod.total.toFixed(2));
+            actualizarTotales();
+            actualizarCamposOcultos();
+        });
+
         // Actualizar cantidad o precio
         $(document).on('input', '.cantidad, .precio-unitario', function() {
             let tr = $(this).closest('tr');
             let id = tr.data('id');
-            let cantidad = parseFloat(tr.find('.cantidad').val()) || 1;
-            let precio = parseFloat(tr.find('.precio-unitario').val()) || 0;
-            let subtotal = cantidad * precio;
-            let iva = subtotal * (ivaPorcentaje / 100);
-            let total = subtotal + iva;
-
-            tr.find('.subtotal').text(subtotal.toFixed(2));
-            tr.find('.iva').text(iva.toFixed(2));
-            tr.find('.total-item').text(total.toFixed(2));
-
             let prod = productos.find(p => p.id == id);
-            if (prod) {
-                prod.cantidad = cantidad;
-                prod.precio = precio;
-                prod.subtotal = subtotal;
-                prod.iva = iva;
-                prod.total = total;
-            }
+            if (!prod) return;
+            prod.cantidad = parseFloat(tr.find('.cantidad').val()) || 1;
+            prod.precio = parseFloat(tr.find('.precio-unitario').val()) || 0;
+            prod.subtotal = prod.cantidad * prod.precio;
+            prod.iva = prod.subtotal * (prod.iva_porcentaje / 100);
+            prod.total = prod.subtotal + prod.iva;
+
+            tr.find('.subtotal').text(prod.subtotal.toFixed(2));
+            tr.find('.valor-iva').text(prod.iva.toFixed(2));
+            tr.find('.total-item').text(prod.total.toFixed(2));
 
             actualizarTotales();
             actualizarCamposOcultos();
@@ -412,7 +434,7 @@ $formas_pago = $stmt_formas_pago->fetchAll();
             }, 'json');
         });
 
-        // Obtener IVA del punto de emisión
+        // Obtener IVA del punto de emisión (SOLO actualiza el % por defecto para NUEVOS productos)
         $('#punto_emision_id').change(function() {
             const punto_id = $(this).val();
             if (!punto_id) return;
@@ -420,21 +442,6 @@ $formas_pago = $stmt_formas_pago->fetchAll();
                 if (data.iva !== undefined) {
                     ivaPorcentaje = parseFloat(data.iva);
                     $('#iva_porcentaje').val(ivaPorcentaje.toFixed(2));
-                    // Recalcular IVA para todos los productos
-                    productos.forEach(prod => {
-                        prod.iva = prod.subtotal * (ivaPorcentaje / 100);
-                        prod.total = prod.subtotal + prod.iva;
-                    });
-                    // Actualizar la tabla
-                    $('#productos_seleccionados tbody tr').each(function() {
-                        let id = $(this).data('id');
-                        let prod = productos.find(p => p.id == id);
-                        if (prod) {
-                            $(this).find('.iva').text(prod.iva.toFixed(2));
-                            $(this).find('.total-item').text(prod.total.toFixed(2));
-                        }
-                    });
-                    actualizarTotales();
                 }
             }, 'json');
         });
@@ -467,6 +474,7 @@ $formas_pago = $stmt_formas_pago->fetchAll();
             $('#productos_subtotales').val(productos.map(p => p.subtotal.toFixed(2)).join(','));
             $('#productos_ivas').val(productos.map(p => p.iva.toFixed(2)).join(','));
             $('#productos_totales').val(productos.map(p => p.total.toFixed(2)).join(','));
+            $('#productos_iva_porcentajes').val(productos.map(p => p.iva_porcentaje.toFixed(2)).join(','));
         }
 
         // Validar antes de enviar
@@ -481,7 +489,7 @@ $formas_pago = $stmt_formas_pago->fetchAll();
                 alert('Debe seleccionar un cliente.');
                 return false;
             }
-            // IVA 0% permitido (RUC que facturan sin IVA)
+            // IVA por producto (cada producto selecciona su %)
             actualizarCamposOcultos();
         });
 

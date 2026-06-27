@@ -6,7 +6,6 @@ $usuario_id = $_SESSION['usuario_id'];
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    // Verificar que el cliente existe Y pertenece al usuario actual
     $sql = "SELECT * FROM clientes WHERE id = :id AND usuario_id = :usuario_id";
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -22,6 +21,10 @@ if (isset($_GET['id'])) {
     echo "<script>alert('ID no proporcionado'); window.location.href='cliente_lista.php';</script>";
     exit;
 }
+
+// Obtener tipos de identificación activos
+$stmt_tipos = $pdo->query("SELECT id, nombre FROM tipos_identificacion WHERE activo = 1 AND aplica_cliente = 1 ORDER BY id");
+$tipos_identificacion = $stmt_tipos->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -29,6 +32,11 @@ if (isset($_GET['id'])) {
     <?php require('../entorno/meta.php'); ?>
     <title>Editar Cliente</title>
     <?php require('../entorno/link.php'); ?>
+    <style>
+        .validation-hint { font-size: 0.85rem; margin-top: 4px; }
+        .validation-hint.ok { color: #28a745; }
+        .validation-hint.error { color: #dc3545; }
+    </style>
 </head>
 <body id="page-top">
     <div id="wrapper">
@@ -61,36 +69,40 @@ if (isset($_GET['id'])) {
                                     <h6 class="m-0 font-weight-bold text-primary">Datos del Cliente</h6>
                                 </div>
                                 <div class="card-body">
-                                    <form method="POST" action="cliente_actualiza.php">
+                                    <form method="POST" action="cliente_actualiza.php" id="formCliente">
                                         <input type="hidden" name="id" value="<?php echo $cliente['id']; ?>">
                                         <div class="form-group">
                                             <label>Razón Social / Nombre Completo</label>
-                                            <input type="text" name="razon_social" class="form-control" value="<?php echo htmlspecialchars($cliente['razon_social']); ?>" required>
+                                            <input type="text" name="razon_social" class="form-control" value="<?php echo htmlspecialchars($cliente['razon_social']); ?>" required maxlength="255">
                                         </div>
                                         <div class="form-group">
                                             <label>Tipo de Identificación</label>
-                                            <select name="id_tipos_identificacion" class="form-control" required>
+                                            <select name="id_tipos_identificacion" id="id_tipos_identificacion" class="form-control" required>
                                                 <option value="">Seleccionar...</option>
-                                                <option value="1" <?php echo $cliente['id_tipos_identificacion'] == 1 ? 'selected' : ''; ?>>Cédula</option>
-                                                <option value="2" <?php echo $cliente['id_tipos_identificacion'] == 2 ? 'selected' : ''; ?>>RUC</option>
-                                                <option value="3" <?php echo $cliente['id_tipos_identificacion'] == 3 ? 'selected' : ''; ?>>Pasaporte</option>
+                                                <?php foreach ($tipos_identificacion as $tipo): ?>
+                                                    <option value="<?php echo $tipo['id']; ?>" <?php echo $cliente['id_tipos_identificacion'] == $tipo['id'] ? 'selected' : ''; ?>>
+                                                        <?php echo htmlspecialchars($tipo['nombre']); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
                                             </select>
                                         </div>
                                         <div class="form-group">
                                             <label>Identificación</label>
-                                            <input type="text" name="identificacion" class="form-control" value="<?php echo htmlspecialchars($cliente['identificacion']); ?>" required>
+                                            <input type="text" name="identificacion" id="identificacion" class="form-control" 
+                                                   value="<?php echo htmlspecialchars($cliente['identificacion']); ?>" required maxlength="20">
+                                            <div id="val_hint" class="validation-hint"></div>
                                         </div>
                                         <div class="form-group">
                                             <label>Dirección</label>
-                                            <input type="text" name="direccion" class="form-control" value="<?php echo htmlspecialchars($cliente['direccion']); ?>">
+                                            <input type="text" name="direccion" class="form-control" value="<?php echo htmlspecialchars($cliente['direccion']); ?>" maxlength="255">
                                         </div>
                                         <div class="form-group">
                                             <label>Teléfono</label>
-                                            <input type="text" name="telefono" class="form-control" value="<?php echo htmlspecialchars($cliente['telefono']); ?>">
+                                            <input type="text" name="telefono" class="form-control" value="<?php echo htmlspecialchars($cliente['telefono']); ?>" maxlength="20">
                                         </div>
                                         <div class="form-group">
                                             <label>Email</label>
-                                            <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($cliente['email']); ?>">
+                                            <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($cliente['email']); ?>" maxlength="100">
                                         </div>
                                         <button type="submit" class="btn btn-primary">Actualizar Cliente</button>
                                         <a href="cliente_lista.php" class="btn btn-secondary">Cancelar</a>
@@ -105,5 +117,59 @@ if (isset($_GET['id'])) {
         </div>
     </div>
     <?php require('../entorno/script.php'); ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoSelect = document.getElementById('id_tipos_identificacion');
+        const idenInput = document.getElementById('identificacion');
+        const hint = document.getElementById('val_hint');
+
+        <?php
+        $json_tipos = json_encode($tipos_identificacion);
+        echo "const tipos = $json_tipos;";
+        ?>
+
+        function validarIdentificacion() {
+            const tipoId = tipoSelect.value;
+            const iden = idenInput.value.replace(/[^a-zA-Z0-9]/g, '');
+
+            if (!tipoId || !iden) {
+                hint.className = 'validation-hint';
+                hint.textContent = '';
+                return;
+            }
+
+            const tipo = tipos.find(t => t.id == tipoId);
+            if (!tipo) return;
+
+            if ((tipoId === '1' || tipoId === '2') && !/^\d+$/.test(iden)) {
+                hint.className = 'validation-hint error';
+                hint.textContent = '⚠ Solo se permiten números';
+                return;
+            }
+
+            const expectedLen = tipoId === '1' ? 13 : (tipoId === '2' ? 10 : '');
+            if (expectedLen) {
+                if (iden.length < expectedLen) {
+                    hint.className = 'validation-hint';
+                    hint.textContent = `⏳ ${iden.length}/${expectedLen} dígitos`;
+                } else if (iden.length === expectedLen) {
+                    hint.className = 'validation-hint ok';
+                    hint.textContent = '✅ Formato correcto';
+                } else {
+                    hint.className = 'validation-hint error';
+                    hint.textContent = `⚠ Demasiados dígitos (máx ${expectedLen})`;
+                }
+            } else {
+                hint.className = 'validation-hint';
+                hint.textContent = '📝 Sin validación de formato específica';
+            }
+        }
+
+        tipoSelect.addEventListener('change', validarIdentificacion);
+        idenInput.addEventListener('input', validarIdentificacion);
+        // Ejecutar validación inicial si ya hay datos
+        validarIdentificacion();
+    });
+    </script>
 </body>
 </html>

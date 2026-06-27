@@ -35,6 +35,7 @@ try {
     $productos_subtotales = array_map('floatval', explode(',', $_POST['productos_subtotales'] ?? ''));
     $productos_ivas = array_map('floatval', explode(',', $_POST['productos_ivas'] ?? ''));
     $productos_totales = array_map('floatval', explode(',', $_POST['productos_totales'] ?? ''));
+    $productos_iva_porcentajes = array_map('floatval', explode(',', $_POST['productos_iva_porcentajes'] ?? ''));
 
     if (empty($productos_ids) || count($productos_ids) !== count($productos_cantidades)) {
         throw new Exception("Error en los productos seleccionados.");
@@ -214,8 +215,8 @@ try {
 
     // === 10. Insertar detalles con IVA individual ===
     $sql_detalle = "
-        INSERT INTO detalle_factura (factura_id, producto_id, cantidad, precio_unitario, subtotal, iva, total)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO detalle_factura (factura_id, producto_id, cantidad, precio_unitario, subtotal, iva, iva_porcentaje, total)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ";
     $stmt_detalle = $pdo->prepare($sql_detalle);
     $sql_update_stock = "UPDATE productos SET stock = stock - ? WHERE id = ?";
@@ -227,10 +228,11 @@ try {
         $precio = round($productos_precios[$index], 2);
         $subtotal = round($productos_subtotales[$index], 2);
         $iva_item = round($productos_ivas[$index], 2);
+        $iva_porcentaje_item = round($productos_iva_porcentajes[$index] ?? 0, 2);
         $total_item = round($productos_totales[$index], 2);
 
         $stmt_detalle->execute([
-            $factura_id, $producto_id, $cantidad, $precio, $subtotal, $iva_item, $total_item
+            $factura_id, $producto_id, $cantidad, $precio, $subtotal, $iva_item, $iva_porcentaje_item, $total_item
         ]);
 
         $stmt_update_stock->execute([$cantidad, $producto_id]);
