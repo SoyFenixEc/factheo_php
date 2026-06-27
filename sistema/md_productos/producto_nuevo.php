@@ -66,7 +66,7 @@ $bodegas = $stmt_bodegas->fetchAll();
                                 </div>
                                 <div class="form-group">
                                     <label>Foto <small class="text-muted">(opcional)</small></label>
-                                    <input type="file" name="foto" class="form-control" accept="image/*">
+                                    <input type="file" name="foto" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
                                 </div>
 
                                 <div class="form-group">

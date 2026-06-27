@@ -90,7 +90,7 @@ $bodegas = $stmt_bodegas->fetchAll();
                                 </div>
                                 <div class="form-group">
                                     <label>Foto</label>
-                                    <input type="file" name="foto" class="form-control">
+                                    <input type="file" name="foto" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
                                     <?php if (!empty($producto['foto'])): ?>
                                         <br><img src="<?php echo htmlspecialchars($producto['foto']); ?>" alt="Producto" style="max-width: 100px;">
                                     <?php endif; ?>

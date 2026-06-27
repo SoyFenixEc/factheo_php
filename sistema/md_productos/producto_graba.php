@@ -2,6 +2,40 @@
 require('../md_autenticacion/sesion.php');
 require('../md_config/conexion.php');
 
+/**
+ * Comprime y redimensiona una imagen, guardando JPG o PNG optimizado
+ */
+function comprimirImagen($origen, $destino, $tipo, $max_ancho = 300) {
+    list($ancho, $alto) = getimagesize($origen);
+
+    // Calcular nuevas dimensiones manteniendo proporción
+    if ($ancho > $max_ancho) {
+        $ratio = $max_ancho / $ancho;
+        $nuevo_ancho = $max_ancho;
+        $nuevo_alto = intval($alto * $ratio);
+    } else {
+        $nuevo_ancho = $ancho;
+        $nuevo_alto = $alto;
+    }
+
+    $lienzo = imagecreatetruecolor($nuevo_ancho, $nuevo_alto);
+
+    if ($tipo == IMAGETYPE_PNG) {
+        $img = imagecreatefrompng($origen);
+        imagealphablending($lienzo, false);
+        imagesavealpha($lienzo, true);
+        imagecopyresampled($lienzo, $img, 0, 0, 0, 0, $nuevo_ancho, $nuevo_alto, $ancho, $alto);
+        imagepng($lienzo, $destino, 6); // compresión PNG 0-9
+    } else {
+        $img = imagecreatefromjpeg($origen);
+        imagecopyresampled($lienzo, $img, 0, 0, 0, 0, $nuevo_ancho, $nuevo_alto, $ancho, $alto);
+        imagejpeg($lienzo, $destino, 70); // calidad JPEG 70%
+    }
+
+    imagedestroy($img);
+    imagedestroy($lienzo);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuario_id = $_SESSION['usuario_id'];
     $nombre = $_POST['nombre'];
@@ -23,15 +57,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // Manejo de la foto
+    // Manejo de la foto (solo JPG/PNG, comprimir)
     $foto = null;
     if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
-        $foto_name = time() . '_' . $_FILES['foto']['name'];
-        $foto_tmp = $_FILES['foto']['tmp_name'];
-        $foto_path = '../md_productos/img/' . $foto_name;
-        if (move_uploaded_file($foto_tmp, $foto_path)) {
-            $foto = $foto_path;
+        $img_info = getimagesize($_FILES['foto']['tmp_name']);
+        $img_type = $img_info[2] ?? 0;
+        $allowed_types = [IMAGETYPE_JPEG, IMAGETYPE_PNG];
+
+        if (!in_array($img_type, $allowed_types)) {
+            echo "<script>alert('Solo se permiten imágenes JPG y PNG.'); window.location.href='producto_nuevo.php';</script>";
+            exit;
         }
+
+        $ext = ($img_type == IMAGETYPE_PNG) ? '.png' : '.jpg';
+        $foto_name = time() . '_' . md5($_FILES['foto']['name']) . $ext;
+        $foto_path = realpath(__DIR__ . '/img/') . '/' . $foto_name;
+
+        comprimirImagen($_FILES['foto']['tmp_name'], $foto_path, $img_type);
+        $foto = '../md_productos/img/' . $foto_name;
     }
 
     try {
