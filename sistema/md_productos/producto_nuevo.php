@@ -66,7 +66,10 @@ $bodegas = $stmt_bodegas->fetchAll();
                                 </div>
                                 <div class="form-group">
                                     <label>Foto <small class="text-muted">(opcional)</small></label>
-                                    <input type="file" name="foto" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+                                    <input type="file" name="foto" id="foto" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png" onchange="previewFoto(event)">
+                                    <div id="preview-foto" class="mt-2" style="display:none;">
+                                        <img id="preview-img" src="#" alt="Vista previa" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid #ddd; padding: 3px;">
+                                    </div>
                                 </div>
 
                                 <div class="form-group">
@@ -89,5 +92,23 @@ $bodegas = $stmt_bodegas->fetchAll();
         </div>
     </div>
     <?php require('../entorno/script.php'); ?>
+    <script>
+    function previewFoto(event) {
+        var preview = document.getElementById('preview-foto');
+        var img = document.getElementById('preview-img');
+        var file = event.target.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                img.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none';
+            img.src = '#';
+        }
+    }
+    </script>
 </body>
 </html>
