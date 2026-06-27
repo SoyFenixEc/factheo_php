@@ -328,7 +328,7 @@ $productos = $stmt->fetchAll();
                                             <h5 class="mb-0"><?= htmlspecialchars($producto['nombre']) ?></h5>
                                             <span class="badge badge-estado <?= $stockBadge ?>"><?= $stockText ?></span>
                                         </div>
-                                        <div class="card-producto-body"> <!--
+                                        <div class="card-producto-body">
                                             <?php if (!empty($producto['foto'])): ?>
                                                 <img src="<?= htmlspecialchars($producto['foto']) ?>" alt="Producto" class="producto-imagen">
                                             <?php else: ?>
