@@ -90,7 +90,7 @@ try {
             COALESCE((SELECT AVG(total) FROM facturas f JOIN empresa e ON f.empresa_id = e.id 
              WHERE f.tipo_comprobante_id = '01' AND e.usuario_id = :usuario_id $where_empresa $where_fechas AND f.estado_xml = 'AUTORIZADO'), 0) as promedio_venta,
             
-            (SELECT COUNT(DISTINCT cliente_id) FROM facturas f JOIN empresa e ON f.empresa_id = e.id WHERE f.tipo_comprobante_id = '01' 
+            (SELECT COUNT(DISTINCT cliente_id) FROM facturas f JOIN empresa e ON f.empresa_id = e.id 
              WHERE f.tipo_comprobante_id = '01' AND e.usuario_id = :usuario_id $where_empresa $where_fechas) as clientes_activos,
             
             -- Nuevos contadores por tipo de comprobante
